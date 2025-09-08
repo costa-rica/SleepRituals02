@@ -1,11 +1,11 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import type { SplashScreenProps } from "../../types/navigation";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
-export default function Splash({ navigation }: any) {
+export default function Splash({ navigation }: SplashScreenProps) {
 	return (
 		<View style={styles.container}>
 			<Text>Splash</Text>
-			<Text>Classic</Text>
 			<TouchableOpacity onPress={() => navigation.navigate("Login")}>
 				<Text>Login</Text>
 			</TouchableOpacity>

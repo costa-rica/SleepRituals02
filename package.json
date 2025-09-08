@@ -3,12 +3,15 @@
 	"main": "src/app/index.tsx",
 	"version": "1.0.0",
 	"scripts": {
+		"prestart": "tsc --noEmit",
 		"start": "expo start",
 		"reset-project": "node ./scripts/reset-project.js",
 		"android": "expo start --android",
 		"ios": "expo start --ios",
 		"web": "expo start --web",
-		"lint": "expo lint"
+		"lint": "expo lint",
+		"typecheck": "tsc --noEmit",
+		"typecheck:watch": "tsc --noEmit --watch"
 	},
 	"dependencies": {
 		"@expo/vector-icons": "^14.1.0",

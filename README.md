@@ -23,3 +23,20 @@ This is my classic TypeScript React Native Expo project created using best pract
 
    - place all the template assets in `src/assets/expo-assets`
    - modify app.json to use the assets from the new location
+
+## Navigation
+
+“screen props” approach
+The typing is done using the screen props approach. See the /src/types/navigation.ts file for more details. No params are passed yet, but this is a good sandbox to test passing params.
+
+## Run the application
+
+package.json has been modified to check types on build: `npm run build`
+
+Added to package.json scripts element:
+
+```json
+   "prestart": "tsc --noEmit",
+   "typecheck": "tsc --noEmit",
+   "typecheck:watch": "tsc --noEmit --watch"
+```

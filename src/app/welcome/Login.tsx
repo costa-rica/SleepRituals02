@@ -1,8 +1,8 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
+import type { LoginScreenProps } from "../../types/navigation";
 
-// const Splash = () => {
-export default function Login({ navigation }: any) {
+export default function Login({ navigation }: LoginScreenProps) {
 	return (
 		<View style={styles.container}>
 			<Text>Login</Text>
