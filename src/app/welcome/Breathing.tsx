@@ -1,13 +1,18 @@
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
+import {
+	View,
+	Text,
+	StyleSheet,
+	TouchableOpacity,
+	Dimensions,
+} from "react-native";
 import React, { useState } from "react";
 import type { BreathingProps } from "../../types/navigation";
 import ScreenFrame from "../../components/ScreenFrame";
 import SimpleBreathing from "../../components/breathing/SimpleBreathing";
-import { ENVIRONMENT } from "@env";
 
 export default function Breathing({ navigation }: BreathingProps) {
 	const [isActive, setIsActive] = useState(false);
-	const isDevelopment = ENVIRONMENT === "development";
+	const isDevelopment = process.env.EXPO_PUBLIC_ENVIRONMENT === "development";
 
 	const handleBegin = () => {
 		setIsActive(true);
@@ -39,7 +44,10 @@ export default function Breathing({ navigation }: BreathingProps) {
 							<Text style={styles.beginButtonText}>Begin</Text>
 						</TouchableOpacity>
 
-						<TouchableOpacity style={styles.customizeButton} onPress={handleCustomize}>
+						<TouchableOpacity
+							style={styles.customizeButton}
+							onPress={handleCustomize}
+						>
 							<Text style={styles.customizeButtonText}>Customize</Text>
 						</TouchableOpacity>
 					</View>
@@ -48,7 +56,10 @@ export default function Breathing({ navigation }: BreathingProps) {
 				{/* Development-only Mantra button - show during animation */}
 				{isDevelopment && isActive && (
 					<View style={styles.devButtonContainer}>
-						<TouchableOpacity style={styles.mantraButton} onPress={handleMantra}>
+						<TouchableOpacity
+							style={styles.mantraButton}
+							onPress={handleMantra}
+						>
 							<Text style={styles.mantraButtonText}>Mantra</Text>
 						</TouchableOpacity>
 					</View>
@@ -58,7 +69,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 	);
 }
 
-const screenHeight = Dimensions.get('window').height;
+const screenHeight = Dimensions.get("window").height;
 const bottomSectionHeight = screenHeight * 0.2;
 
 const styles = StyleSheet.create({
