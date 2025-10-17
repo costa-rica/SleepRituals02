@@ -47,6 +47,19 @@ export const PauseButtonIcon: React.FC<IconProps> = ({
   </Svg>
 );
 
+export const PlayButtonIcon: React.FC<IconProps> = ({
+  width = 32,
+  height = 39,
+  color = '#C3B5D2',
+}) => (
+  <Svg width={width} height={height} viewBox="0 0 32 39" fill="none">
+    <Path
+      d="M4.74936 38.1131C2.69167 39.4225 -0.000976562 37.9444 -0.000976562 35.5054V3.49391C-0.000976562 1.0549 2.69167 -0.423216 4.74937 0.886227L29.9012 16.892C31.8099 18.1066 31.8099 20.8927 29.9012 22.1073L4.74936 38.1131Z"
+      fill={color}
+    />
+  </Svg>
+);
+
 export const ControlsButtonIcon: React.FC<IconProps> = ({
   width = 27,
   height = 25,

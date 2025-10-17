@@ -6,6 +6,7 @@ import SimpleBreathing from "../../components/breathing/SimpleBreathing";
 import {
 	CustomizeAudioIcon,
 	PauseButtonIcon,
+	PlayButtonIcon,
 	ControlsButtonIcon,
 } from "../../components/breathing/BreathingIcons";
 
@@ -17,6 +18,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 	const [showIntro, setShowIntro] = useState(true);
 	const [cycleCount, setCycleCount] = useState(0);
 	const [showControls, setShowControls] = useState(false);
+	const [isPaused, setIsPaused] = useState(false);
 	const introOpacity = useRef(new Animated.Value(0)).current;
 
 	// Fade in intro text and start breathing after delay
@@ -60,12 +62,18 @@ export default function Breathing({ navigation }: BreathingProps) {
 		setShowControls((prev) => !prev);
 	};
 
+	// Toggle pause/play
+	const togglePause = () => {
+		setIsPaused((prev) => !prev);
+	};
+
 	return (
 		<ScreenFrame currentScreen="Breathing">
 			<Pressable style={styles.container} onPress={toggleControls}>
 				{/* Breathing animation component */}
 				<SimpleBreathing
 					isActive={isActive}
+					isPaused={isPaused}
 					onCycleComplete={handleCycleComplete}
 				/>
 
@@ -103,11 +111,15 @@ export default function Breathing({ navigation }: BreathingProps) {
 							style={styles.controlButtonLarge}
 							onPress={(e) => {
 								e.stopPropagation();
-								// Pause action (placeholder)
+								togglePause();
 							}}
 						>
 							<View style={styles.buttonCircleLarge}>
-								<PauseButtonIcon width={50} height={58} />
+								{isPaused ? (
+									<PlayButtonIcon width={50} height={58} color="#E5D6F5" />
+								) : (
+									<PauseButtonIcon width={50} height={58} />
+								)}
 							</View>
 						</Pressable>
 

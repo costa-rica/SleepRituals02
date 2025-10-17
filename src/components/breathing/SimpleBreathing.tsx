@@ -13,6 +13,7 @@ export enum BreathingPhase {
 // Props interface for SimpleBreathing component
 export interface SimpleBreathingProps {
   isActive?: boolean;
+  isPaused?: boolean;
   breatheInDuration?: number;
   holdDuration?: number;
   breatheOutDuration?: number;
@@ -29,6 +30,7 @@ const HOLD_OSCILLATION_DURATION = 800; // Subtle pulse during hold phases
 
 const SimpleBreathing: React.FC<SimpleBreathingProps> = ({
   isActive = false,
+  isPaused = false,
   breatheInDuration = 4000,
   holdDuration = 4000,
   breatheOutDuration = 4000,
@@ -196,7 +198,7 @@ const SimpleBreathing: React.FC<SimpleBreathingProps> = ({
 
   // Phase progression effect
   useEffect(() => {
-    if (!isActive) return;
+    if (!isActive || isPaused) return;
 
     const currentDuration = getPhaseDuration(currentPhase);
     const timer = setTimeout(() => {
@@ -206,7 +208,7 @@ const SimpleBreathing: React.FC<SimpleBreathingProps> = ({
     }, currentDuration);
 
     return () => clearTimeout(timer);
-  }, [currentPhase, isActive]);
+  }, [currentPhase, isActive, isPaused]);
 
   // Calculate current circle size
   const minSize = screenWidth * 0.1; // 10% of screen width
