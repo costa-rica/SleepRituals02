@@ -1,137 +1,91 @@
-import {
-	View,
-	Text,
-	StyleSheet,
-	TouchableOpacity,
-	Dimensions,
-} from "react-native";
-import React, { useState } from "react";
+import { View, Text, StyleSheet, Animated } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
 import type { BreathingProps } from "../../types/navigation";
 import ScreenFrame from "../../components/ScreenFrame";
 import SimpleBreathing from "../../components/breathing/SimpleBreathing";
 
+const INTRO_DURATION = 4000; // 4 seconds
+const TOTAL_CYCLES = 4;
+
 export default function Breathing({ navigation }: BreathingProps) {
 	const [isActive, setIsActive] = useState(false);
-	const isDevelopment = process.env.EXPO_PUBLIC_ENVIRONMENT === "development";
+	const [showIntro, setShowIntro] = useState(true);
+	const [cycleCount, setCycleCount] = useState(0);
+	const introOpacity = useRef(new Animated.Value(0)).current;
 
-	const handleBegin = () => {
-		setIsActive(true);
-	};
+	// Fade in intro text and start breathing after delay
+	useEffect(() => {
+		// Fade in intro text
+		Animated.timing(introOpacity, {
+			toValue: 1,
+			duration: 1000,
+			useNativeDriver: true,
+		}).start();
 
-	const handleCustomize = () => {
-		// Placeholder for customize functionality
-		console.log("Customize button pressed");
-	};
+		// Wait 4 seconds then start breathing
+		const timer = setTimeout(() => {
+			// Fade out intro text
+			Animated.timing(introOpacity, {
+				toValue: 0,
+				duration: 1000,
+				useNativeDriver: true,
+			}).start(() => {
+				setShowIntro(false);
+			});
+			setIsActive(true);
+		}, INTRO_DURATION);
 
-	const handleMantra = () => {
-		// Development only: navigate to Mantra
-		// Don't set isActive to false - component will unmount during navigation anyway
-		navigation.navigate("Mantra");
+		return () => clearTimeout(timer);
+	}, []);
+
+	// Handle cycle completion
+	const handleCycleComplete = () => {
+		const newCycleCount = cycleCount + 1;
+		setCycleCount(newCycleCount);
+
+		if (newCycleCount >= TOTAL_CYCLES) {
+			// Navigate to Mantra screen after 4 cycles
+			navigation.navigate("Mantra");
+		}
 	};
 
 	return (
 		<ScreenFrame currentScreen="Breathing">
 			<View style={styles.container}>
 				{/* Breathing animation component */}
-				<SimpleBreathing isActive={isActive} />
+				<SimpleBreathing
+					isActive={isActive}
+					onCycleComplete={handleCycleComplete}
+				/>
 
-				{/* Bottom section with buttons - only show when not active */}
-				{!isActive && (
-					<View style={styles.bottomSection}>
-						<Text style={styles.infoText}>Box (4-4-4-4) • 4 Cycles</Text>
-
-						<TouchableOpacity style={styles.beginButton} onPress={handleBegin}>
-							<Text style={styles.beginButtonText}>Begin</Text>
-						</TouchableOpacity>
-
-						<TouchableOpacity
-							style={styles.customizeButton}
-							onPress={handleCustomize}
-						>
-							<Text style={styles.customizeButtonText}>Customize</Text>
-						</TouchableOpacity>
-					</View>
-				)}
-
-				{/* Development-only Mantra button - show during animation */}
-				{isDevelopment && isActive && (
-					<View style={styles.devButtonContainer}>
-						<TouchableOpacity
-							style={styles.mantraButton}
-							onPress={handleMantra}
-						>
-							<Text style={styles.mantraButtonText}>Mantra</Text>
-						</TouchableOpacity>
-					</View>
+				{/* Intro text */}
+				{showIntro && (
+					<Animated.View
+						style={[styles.introContainer, { opacity: introOpacity }]}
+					>
+						<Text style={styles.introText}>Let's begin to breathe</Text>
+					</Animated.View>
 				)}
 			</View>
 		</ScreenFrame>
 	);
 }
 
-const screenHeight = Dimensions.get("window").height;
-const bottomSectionHeight = screenHeight * 0.2;
-
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 	},
-	bottomSection: {
-		height: bottomSectionHeight,
-		justifyContent: "flex-start",
-		alignItems: "center",
-		paddingHorizontal: 40,
-		paddingBottom: 40,
-	},
-	infoText: {
-		color: "#FFFFFF",
-		fontSize: 16,
-		fontWeight: "400",
-		marginBottom: 24,
-	},
-	beginButton: {
-		width: "100%",
-		backgroundColor: "#7B6BA8",
-		paddingVertical: 18,
-		borderRadius: 28,
-		alignItems: "center",
-		marginBottom: 16,
-	},
-	beginButtonText: {
-		color: "#FFFFFF",
-		fontSize: 18,
-		fontWeight: "500",
-	},
-	customizeButton: {
-		width: "100%",
-		backgroundColor: "transparent",
-		paddingVertical: 18,
-		borderRadius: 28,
-		borderWidth: 1,
-		borderColor: "#FFFFFF",
-		alignItems: "center",
-	},
-	customizeButtonText: {
-		color: "#FFFFFF",
-		fontSize: 18,
-		fontWeight: "400",
-	},
-	devButtonContainer: {
+	introContainer: {
 		position: "absolute",
-		bottom: 40,
+		bottom: 120,
 		left: 40,
 		right: 40,
-	},
-	mantraButton: {
-		width: "100%",
-		backgroundColor: "#7B6BA8",
-		paddingVertical: 18,
-		borderRadius: 28,
 		alignItems: "center",
 	},
-	mantraButtonText: {
+	introText: {
 		color: "#FFFFFF",
-		fontSize: 18,
-		fontWeight: "500",
+		fontSize: 20,
+		fontWeight: "300",
+		textAlign: "center",
 	},
 });
