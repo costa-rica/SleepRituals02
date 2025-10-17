@@ -1,8 +1,13 @@
-import { View, Text, StyleSheet, Animated } from "react-native";
+import { View, Text, StyleSheet, Animated, Pressable } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import type { BreathingProps } from "../../types/navigation";
 import ScreenFrame from "../../components/ScreenFrame";
 import SimpleBreathing from "../../components/breathing/SimpleBreathing";
+import {
+	CustomizeAudioIcon,
+	PauseButtonIcon,
+	ControlsButtonIcon,
+} from "../../components/breathing/BreathingIcons";
 
 const INTRO_DURATION = 4000; // 4 seconds
 const TOTAL_CYCLES = 4;
@@ -11,6 +16,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 	const [isActive, setIsActive] = useState(false);
 	const [showIntro, setShowIntro] = useState(true);
 	const [cycleCount, setCycleCount] = useState(0);
+	const [showControls, setShowControls] = useState(false);
 	const introOpacity = useRef(new Animated.Value(0)).current;
 
 	// Fade in intro text and start breathing after delay
@@ -49,14 +55,69 @@ export default function Breathing({ navigation }: BreathingProps) {
 		}
 	};
 
+	// Toggle controls visibility
+	const toggleControls = () => {
+		setShowControls((prev) => !prev);
+	};
+
 	return (
 		<ScreenFrame currentScreen="Breathing">
-			<View style={styles.container}>
+			<Pressable style={styles.container} onPress={toggleControls}>
 				{/* Breathing animation component */}
 				<SimpleBreathing
 					isActive={isActive}
 					onCycleComplete={handleCycleComplete}
 				/>
+
+				{/* Cycle progress bars */}
+				{showControls && (
+					<View style={styles.progressContainer}>
+						{[...Array(TOTAL_CYCLES)].map((_, index) => (
+							<View
+								key={index}
+								style={[
+									styles.progressBar,
+									index < cycleCount && styles.progressBarActive,
+								]}
+							/>
+						))}
+					</View>
+				)}
+
+				{/* Control buttons */}
+				{showControls && (
+					<View style={styles.controlsContainer}>
+						<Pressable
+							style={styles.controlButton}
+							onPress={(e) => {
+								e.stopPropagation();
+								// Audio customize action (placeholder)
+							}}
+						>
+							<CustomizeAudioIcon width={30} height={30} />
+						</Pressable>
+
+						<Pressable
+							style={styles.controlButton}
+							onPress={(e) => {
+								e.stopPropagation();
+								// Pause action (placeholder)
+							}}
+						>
+							<PauseButtonIcon width={40} height={46} />
+						</Pressable>
+
+						<Pressable
+							style={styles.controlButton}
+							onPress={(e) => {
+								e.stopPropagation();
+								// Controls action (placeholder)
+							}}
+						>
+							<ControlsButtonIcon width={32} height={30} />
+						</Pressable>
+					</View>
+				)}
 
 				{/* Intro text */}
 				{showIntro && (
@@ -66,7 +127,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 						<Text style={styles.introText}>Let's begin to breathe</Text>
 					</Animated.View>
 				)}
-			</View>
+			</Pressable>
 		</ScreenFrame>
 	);
 }
@@ -74,6 +135,39 @@ export default function Breathing({ navigation }: BreathingProps) {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+	},
+	progressContainer: {
+		position: "absolute",
+		top: 80,
+		left: 40,
+		right: 40,
+		flexDirection: "row",
+		justifyContent: "space-between",
+		gap: 12,
+	},
+	progressBar: {
+		flex: 1,
+		height: 4,
+		backgroundColor: "rgba(255, 255, 255, 0.3)",
+		borderRadius: 2,
+	},
+	progressBarActive: {
+		backgroundColor: "#FFFFFF",
+	},
+	controlsContainer: {
+		position: "absolute",
+		bottom: 200,
+		left: 40,
+		right: 40,
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center",
+	},
+	controlButton: {
+		width: 60,
+		height: 60,
+		justifyContent: "center",
+		alignItems: "center",
 	},
 	introContainer: {
 		position: "absolute",
