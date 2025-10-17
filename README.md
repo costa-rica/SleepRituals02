@@ -12,6 +12,16 @@ In the breathing screen there will be a guided breathing exercise using subtle a
 
 The mantra screen will play a mantra audio file while the user goes to sleep. This will consist of .mp4 files.
 
+## ScreenFrame
+
+This app will use a ScreenFrame component. This component will have a background design used by all screens. Then screens will be the children property. ScreenFrame will function as the name suggests – to frame the screen and provide a consistent theme and style.
+
+This application will have a navigation style header that will display “Good Times”, “Breathing”, “ or “Mantra” depending on the screen the user is on. The user will get the sense of a wheel that scrolls from left to right, but the user cannot actually scroll the wheel. The wheel will scroll automatically as the user advances screens. The children component will handle the navigation. The ScreenFrame will handle the display of the wheel.
+
+The screens that follow will be to the right and transparent. The current screen will be in the middle and opaque. See the docs/Figma/01GoodTimesEmpty.png for the example.
+
+The ScreenFrame component will have a background color of #0F1015. The top of the screen will use the src/assets/images/screen-frame/IllustrationBackground.png image. The IllustrationBackground.png image will be placed once at the top of the screen. The bottom of the image will not cover the bottom of the screen. It is increasingly transparent as it goes down the screen.
+
 ## Reference Documents
 
 ### Figma Design
