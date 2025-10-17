@@ -14,10 +14,10 @@ const Index = () => {
 	return (
 		<NavigationContainer>
 			<Stack.Navigator screenOptions={{ headerShown: false }}>
-				<Stack.Screen name="Splash" component={Splash} />
 				<Stack.Screen name="GoodTimes" component={GoodTimes} />
 				<Stack.Screen name="Breathing" component={Breathing} />
 				<Stack.Screen name="Mantra" component={Mantra} />
+				<Stack.Screen name="Splash" component={Splash} />
 			</Stack.Navigator>
 		</NavigationContainer>
 	);
