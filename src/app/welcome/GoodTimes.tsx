@@ -37,6 +37,15 @@ export default function GoodTimes({ navigation }: GoodTimesProps) {
 	const currentEntry = entries.find((e) => !e.disabled);
 	const showNewButton = currentEntry && currentEntry.text.length > 0;
 
+	// Next button is enabled when at least one entry has text
+	const hasAtLeastOneEntry = entries.some((entry) => entry.text.length > 0);
+
+	const handleNext = () => {
+		if (hasAtLeastOneEntry) {
+			navigation.navigate("Breathing");
+		}
+	};
+
 	return (
 		<ScreenFrame currentScreen="GoodTimes">
 			<View style={styles.container}>
@@ -67,6 +76,26 @@ export default function GoodTimes({ navigation }: GoodTimesProps) {
 						</TouchableOpacity>
 					)}
 				</View>
+
+				<View style={styles.bottomContainer}>
+					<TouchableOpacity
+						style={[
+							styles.nextButton,
+							!hasAtLeastOneEntry && styles.nextButtonDisabled
+						]}
+						onPress={handleNext}
+						disabled={!hasAtLeastOneEntry}
+					>
+						<Text
+							style={[
+								styles.nextButtonText,
+								!hasAtLeastOneEntry && styles.nextButtonTextDisabled
+							]}
+						>
+							Next
+						</Text>
+					</TouchableOpacity>
+				</View>
 			</View>
 		</ScreenFrame>
 	);
@@ -87,6 +116,7 @@ const styles = StyleSheet.create({
 	},
 	entriesContainer: {
 		width: "100%",
+		flex: 1,
 	},
 	input: {
 		backgroundColor: "rgba(255, 255, 255, 0.05)",
@@ -110,5 +140,29 @@ const styles = StyleSheet.create({
 	newButtonText: {
 		color: "#FFFFFF",
 		fontSize: 16,
+	},
+	bottomContainer: {
+		paddingVertical: 24,
+		width: "100%",
+	},
+	nextButton: {
+		backgroundColor: "rgba(138, 86, 226, 1)",
+		borderRadius: 28,
+		paddingVertical: 20,
+		paddingHorizontal: 40,
+		alignItems: "center",
+		justifyContent: "center",
+		minHeight: 56,
+	},
+	nextButtonDisabled: {
+		backgroundColor: "rgba(138, 86, 226, 0.3)",
+	},
+	nextButtonText: {
+		color: "#FFFFFF",
+		fontSize: 18,
+		fontWeight: "600",
+	},
+	nextButtonTextDisabled: {
+		color: "rgba(255, 255, 255, 0.4)",
 	},
 });
