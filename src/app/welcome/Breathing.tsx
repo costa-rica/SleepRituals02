@@ -1,20 +1,21 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
-import type { GoodTimesProps } from "../../types/navigation";
+import type { BreathingProps } from "../../types/navigation";
 import ScreenFrame from "../../components/ScreenFrame";
 
-export default function GoodTimes({ navigation }: GoodTimesProps) {
+export default function Breathing({ navigation }: BreathingProps) {
 	return (
-		<ScreenFrame currentScreen="GoodTimes">
+		<ScreenFrame currentScreen="Breathing">
 			<View style={styles.container}>
-				<Text style={styles.text}>Good Times</Text>
-				<TouchableOpacity onPress={() => navigation.navigate("Breathing")}>
-					<Text style={styles.buttonText}>Go to Breathing</Text>
+				<Text style={styles.text}>Breathing</Text>
+				<TouchableOpacity onPress={() => navigation.navigate("Mantra")}>
+					<Text style={styles.buttonText}>Go to Mantra</Text>
 				</TouchableOpacity>
 			</View>
 		</ScreenFrame>
 	);
 }
+
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,

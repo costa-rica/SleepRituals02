@@ -31,20 +31,38 @@ const ScreenFrame: React.FC<ScreenFrameProps> = ({
 		const screens: ScreenName[] = ["GoodTimes", "Breathing", "Mantra"];
 		const currentIndex = screens.indexOf(currentScreen);
 
-		return screens.map((screen, index) => {
-			const isCurrentScreen = screen === currentScreen;
-			const isNextScreen = index === currentIndex + 1;
+		const prevScreen =
+			currentIndex > 0
+				? {
+						name: screens[currentIndex - 1],
+						title: SCREEN_TITLES[screens[currentIndex - 1]],
+						opacity: 0.3,
+						position: "left" as const,
+				  }
+				: null;
 
-			return {
-				name: screen,
-				title: SCREEN_TITLES[screen],
-				opacity: isCurrentScreen ? 1 : isNextScreen ? 0.4 : 0,
-				position: index - currentIndex,
-			};
-		});
+		const currentScreenItem = {
+			name: currentScreen,
+			title: SCREEN_TITLES[currentScreen],
+			opacity: 1,
+			position: "center" as const,
+		};
+
+		const nextScreen =
+			currentIndex < screens.length - 1
+				? {
+						name: screens[currentIndex + 1],
+						title: SCREEN_TITLES[screens[currentIndex + 1]],
+						opacity: 0.4,
+						position: "right" as const,
+				  }
+				: null;
+
+		return { prevScreen, currentScreenItem, nextScreen };
 	};
 
-	const navigationItems = getNavigationWheelItems();
+	const { prevScreen, currentScreenItem, nextScreen } =
+		getNavigationWheelItems();
 
 	return (
 		<View style={styles.container}>
@@ -60,24 +78,42 @@ const ScreenFrame: React.FC<ScreenFrameProps> = ({
 
 			{/* Navigation Wheel Header */}
 			<View style={styles.navigationWheel}>
-				{navigationItems.map((item) => {
-					if (item.opacity === 0) return null;
+				{/* Previous Screen (left) */}
+				{prevScreen && (
+					<Text
+						style={[
+							styles.navigationText,
+							styles.navigationLeft,
+							{ opacity: prevScreen.opacity },
+						]}
+					>
+						{prevScreen.title}
+					</Text>
+				)}
 
-					return (
-						<Text
-							key={item.name}
-							style={[
-								styles.navigationText,
-								{
-									opacity: item.opacity,
-									marginLeft: item.position === 0 ? 0 : 40,
-								},
-							]}
-						>
-							{item.title}
-						</Text>
-					);
-				})}
+				{/* Current Screen (center) */}
+				<Text
+					style={[
+						styles.navigationText,
+						styles.navigationCenter,
+						{ opacity: currentScreenItem.opacity },
+					]}
+				>
+					{currentScreenItem.title}
+				</Text>
+
+				{/* Next Screen (right) */}
+				{nextScreen && (
+					<Text
+						style={[
+							styles.navigationText,
+							styles.navigationRight,
+							{ opacity: nextScreen.opacity },
+						]}
+					>
+						{nextScreen.title}
+					</Text>
+				)}
 			</View>
 
 			{/* Screen Content */}
@@ -108,16 +144,32 @@ const styles = StyleSheet.create({
 	navigationWheel: {
 		flexDirection: "row",
 		justifyContent: "center",
-		alignItems: "center",
+		alignItems: "flex-start",
 		paddingTop: 60,
 		paddingHorizontal: 20,
 		zIndex: 10,
+		position: "relative",
+		width: "100%",
 	},
 	navigationText: {
 		fontSize: 16,
 		fontWeight: "600",
 		color: "#FFFFFF",
 		letterSpacing: 1,
+		lineHeight: 20,
+	},
+	navigationLeft: {
+		position: "absolute",
+		left: 20,
+		top: 60,
+	},
+	navigationCenter: {
+		// This will be centered by the parent's justifyContent: center
+	},
+	navigationRight: {
+		position: "absolute",
+		right: 20,
+		top: 60,
 	},
 	content: {
 		flex: 1,
