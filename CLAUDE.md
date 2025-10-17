@@ -31,12 +31,14 @@ This is NOT a standard Expo template. Key customizations:
 ## Development Commands
 
 ### Type Checking
+
 ```bash
 npm run typecheck          # Run type check once
 npm run typecheck:watch    # Run type check in watch mode
 ```
 
 ### Running the App
+
 ```bash
 npm start                  # Start Expo dev server (runs prestart type check)
 npm run android            # Start on Android
@@ -45,6 +47,7 @@ npm run web                # Start on Web
 ```
 
 ### Linting
+
 ```bash
 npm run lint               # Run ESLint
 ```
@@ -65,12 +68,14 @@ Navigation is configured in `src/app/App.tsx` using `createNativeStackNavigator`
 ### Screen Organization
 
 Screens are organized by feature area:
+
 - `src/app/welcome/` - Welcome flow screens (Splash, GoodTimes)
 - Future screens for Breathing and Mantra will follow similar organization
 
 ### Design Reference
 
 Figma design screenshots are in `docs/Figma/`:
+
 - `01GoodTimesEmpty.png` - Empty journal state
 - `02GoodTimesFilled.png` - Journal with entries
 - `03BreathingNotStarted.png` - Breathing exercise initial state
@@ -81,6 +86,7 @@ Refer to these for UI implementation details and variations.
 ### App Configuration
 
 `app.json` points to custom asset locations:
+
 - Icon: `./src/assets/expo-assets/icon.png`
 - Splash: `./src/assets/expo-assets/splash-icon.png`
 - Adaptive icon: `./src/assets/expo-assets/adaptive-icon.png`
@@ -91,3 +97,18 @@ Refer to these for UI implementation details and variations.
 - **Navigation typing**: Always use typed navigation props from `src/types/navigation.ts` when adding new screens
 - **Asset paths**: When adding assets, place them in `src/assets/expo-assets` and reference them correctly in `app.json`
 - **Redux setup**: Not yet implemented but planned for journal persistence
+
+## Implementation Difficulty Index
+
+This index helps Claude determine how challenging a proposed implementation would be within this project’s architecture and conventions. Claude should use this to assign a score from 0 to 10 when assessing new implementation requests.
+
+**Scale:**
+
+0: no need to change anything — functionality already exists  
+1: minor modifications to existing files  
+2: major modifications to existing files  
+3–4: create new files  
+5–6: create new files and folders  
+7–8: change current structure and architecture (renaming, deleting, or repurposing)  
+9: outside the range of convention given the technology, packages, and architecture in use  
+10: impossible to accomplish
