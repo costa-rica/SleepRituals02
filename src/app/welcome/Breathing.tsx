@@ -77,7 +77,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 								key={index}
 								style={[
 									styles.progressBar,
-									index < cycleCount && styles.progressBarActive,
+									index <= cycleCount && styles.progressBarActive,
 								]}
 							/>
 						))}
@@ -94,17 +94,21 @@ export default function Breathing({ navigation }: BreathingProps) {
 								// Audio customize action (placeholder)
 							}}
 						>
-							<CustomizeAudioIcon width={30} height={30} />
+							<View style={styles.buttonCircle}>
+								<CustomizeAudioIcon width={30} height={30} />
+							</View>
 						</Pressable>
 
 						<Pressable
-							style={styles.controlButton}
+							style={styles.controlButtonLarge}
 							onPress={(e) => {
 								e.stopPropagation();
 								// Pause action (placeholder)
 							}}
 						>
-							<PauseButtonIcon width={40} height={46} />
+							<View style={styles.buttonCircleLarge}>
+								<PauseButtonIcon width={50} height={58} />
+							</View>
 						</Pressable>
 
 						<Pressable
@@ -114,7 +118,9 @@ export default function Breathing({ navigation }: BreathingProps) {
 								// Controls action (placeholder)
 							}}
 						>
-							<ControlsButtonIcon width={32} height={30} />
+							<View style={styles.buttonCircle}>
+								<ControlsButtonIcon width={32} height={30} />
+							</View>
 						</Pressable>
 					</View>
 				)}
@@ -166,6 +172,30 @@ const styles = StyleSheet.create({
 	controlButton: {
 		width: 60,
 		height: 60,
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	controlButtonLarge: {
+		width: 120,
+		height: 120,
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	buttonCircle: {
+		width: 60,
+		height: 60,
+		borderRadius: 30,
+		borderWidth: 2,
+		borderColor: "rgba(255, 255, 255, 0.3)",
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	buttonCircleLarge: {
+		width: 120,
+		height: 120,
+		borderRadius: 60,
+		borderWidth: 2,
+		borderColor: "rgba(255, 255, 255, 0.3)",
 		justifyContent: "center",
 		alignItems: "center",
 	},
