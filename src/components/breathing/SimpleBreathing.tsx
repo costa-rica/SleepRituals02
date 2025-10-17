@@ -12,6 +12,7 @@ export enum BreathingPhase {
 
 // Props interface for SimpleBreathing component
 export interface SimpleBreathingProps {
+  isActive?: boolean;
   breatheInDuration?: number;
   holdDuration?: number;
   breatheOutDuration?: number;
@@ -23,11 +24,11 @@ export interface SimpleBreathingProps {
 }
 
 // Animation constants
-const SMALL_RADIUS = 40; // 40px radius (80px diameter)
 const TRANSITION_DURATION = 1200; // Text transition duration in ms
 const HOLD_OSCILLATION_DURATION = 800; // Subtle pulse during hold phases
 
 const SimpleBreathing: React.FC<SimpleBreathingProps> = ({
+  isActive = false,
   breatheInDuration = 4000,
   holdDuration = 4000,
   breatheOutDuration = 4000,
@@ -47,7 +48,6 @@ const SimpleBreathing: React.FC<SimpleBreathingProps> = ({
   const holdPulse = useRef(new Animated.Value(1)).current;
 
   const screenWidth = Dimensions.get('window').width;
-  const maxRadius = (screenWidth * 0.75) / 2; // 75% of screen width / 2 for radius
 
   // Get phase duration
   const getPhaseDuration = (phase: BreathingPhase): number => {
@@ -170,8 +170,15 @@ const SimpleBreathing: React.FC<SimpleBreathingProps> = ({
     }
   };
 
-  // Initialize on mount
+  // Initialize when isActive becomes true
   useEffect(() => {
+    if (!isActive) {
+      // Reset to small state when not active
+      breathingScale.setValue(0);
+      textOpacity.setValue(0);
+      return;
+    }
+
     // Fade in initial text
     Animated.timing(textOpacity, {
       toValue: 1,
@@ -185,10 +192,12 @@ const SimpleBreathing: React.FC<SimpleBreathingProps> = ({
       duration: breatheInDuration,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [isActive]);
 
   // Phase progression effect
   useEffect(() => {
+    if (!isActive) return;
+
     const currentDuration = getPhaseDuration(currentPhase);
     const timer = setTimeout(() => {
       const nextPhase = getNextPhase(currentPhase);
@@ -197,15 +206,11 @@ const SimpleBreathing: React.FC<SimpleBreathingProps> = ({
     }, currentDuration);
 
     return () => clearTimeout(timer);
-  }, [currentPhase]);
+  }, [currentPhase, isActive]);
 
   // Calculate current circle size
-  const minSize = SMALL_RADIUS * 2; // 80px diameter
-  const maxSize = screenWidth * 0.75;
-  const interpolatedSize = breathingScale.interpolate({
-    inputRange: [0, 1],
-    outputRange: [minSize, maxSize],
-  });
+  const minSize = screenWidth * 0.1; // 10% of screen width
+  const maxSize = screenWidth * 0.9; // 90% of screen width
 
   // Calculate current scale value for gradient logic
   const [currentScaleValue, setCurrentScaleValue] = useState(0);
@@ -219,8 +224,9 @@ const SimpleBreathing: React.FC<SimpleBreathingProps> = ({
   // Render radial gradient circle
   const renderBreathingCircle = () => {
     const AnimatedSvg = Animated.createAnimatedComponent(Svg);
-    const radius = SMALL_RADIUS + (maxRadius - SMALL_RADIUS) * currentScaleValue;
-    const diameter = radius * 2;
+    // Calculate diameter by interpolating between min and max sizes
+    const diameter = minSize + (maxSize - minSize) * currentScaleValue;
+    const radius = diameter / 2;
 
     // Gradient configuration based on scale
     const isSmallState = currentScaleValue < 0.3;
@@ -229,7 +235,6 @@ const SimpleBreathing: React.FC<SimpleBreathingProps> = ({
       <Animated.View
         style={{
           transform: [
-            { scale: Animated.multiply(breathingScale, maxSize / minSize) },
             { scale: holdPulse },
           ],
         }}
@@ -277,7 +282,7 @@ const SimpleBreathing: React.FC<SimpleBreathingProps> = ({
       <View style={styles.circleContainer}>{renderBreathingCircle()}</View>
 
       {/* Instruction text */}
-      {showInstructions && (
+      {showInstructions && isActive && (
         <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
           <Text style={styles.instructionText}>{instructionText}</Text>
         </Animated.View>
@@ -291,7 +296,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000000',
   },
   circleContainer: {
     justifyContent: 'center',
