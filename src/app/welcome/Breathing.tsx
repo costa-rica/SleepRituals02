@@ -19,8 +19,8 @@ export default function Breathing({ navigation }: BreathingProps) {
 	};
 
 	const handleMantra = () => {
-		// Development only: stop animation and navigate to Mantra
-		setIsActive(false);
+		// Development only: navigate to Mantra
+		// Don't set isActive to false - component will unmount during navigation anyway
 		navigation.navigate("Mantra");
 	};
 
