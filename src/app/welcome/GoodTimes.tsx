@@ -1,11 +1,11 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
-import type { LoginScreenProps } from "../../types/navigation";
+import type { GoodTimesProps } from "../../types/navigation";
 
-export default function Login({ navigation }: LoginScreenProps) {
+export default function GoodTimes({ navigation }: GoodTimesProps) {
 	return (
 		<View style={styles.container}>
-			<Text>Login</Text>
+			<Text>GoodTimes</Text>
 			<TouchableOpacity onPress={() => navigation.navigate("Splash")}>
 				<Text>Splash</Text>
 			</TouchableOpacity>

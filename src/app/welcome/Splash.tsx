@@ -6,8 +6,8 @@ export default function Splash({ navigation }: SplashScreenProps) {
 	return (
 		<View style={styles.container}>
 			<Text>Splash</Text>
-			<TouchableOpacity onPress={() => navigation.navigate("Login")}>
-				<Text>Login</Text>
+			<TouchableOpacity onPress={() => navigation.navigate("GoodTimes")}>
+				<Text>GoodTimes</Text>
 			</TouchableOpacity>
 		</View>
 	);

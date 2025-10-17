@@ -1,11 +1,11 @@
 {
 	"expo": {
-		"name": "typescriptreactnative01classic",
-		"slug": "typescriptreactnative01classic",
+		"name": "sleeprituals02",
+		"slug": "sleeprituals02",
 		"version": "1.0.0",
 		"orientation": "portrait",
 		"icon": "./src/assets/expo-assets/icon.png",
-		"scheme": "typescriptreactnative01classic",
+		"scheme": "sleeprituals02",
 		"userInterfaceStyle": "automatic",
 		"newArchEnabled": true,
 		"ios": {
