@@ -5,7 +5,7 @@ import ScreenFrame from "../../components/ScreenFrame";
 
 export default function Mantra({ navigation }: MantraProps) {
 	return (
-		<ScreenFrame currentScreen="Mantra">
+		<ScreenFrame>
 			<View style={styles.container}>
 				<Text style={styles.text}>Mantra</Text>
 				<TouchableOpacity onPress={() => navigation.navigate("GoodTimes")}>

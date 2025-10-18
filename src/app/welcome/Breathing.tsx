@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, Animated, Pressable } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
+import { useIsFocused } from "@react-navigation/native";
 import type { BreathingProps } from "../../types/navigation";
 import ScreenFrame from "../../components/ScreenFrame";
 import SimpleBreathing from "../../components/breathing/SimpleBreathing";
@@ -14,15 +15,32 @@ const INTRO_DURATION = 4000; // 4 seconds
 const TOTAL_CYCLES = 4;
 
 export default function Breathing({ navigation }: BreathingProps) {
+	const isFocused = useIsFocused();
 	const [isActive, setIsActive] = useState(false);
 	const [showIntro, setShowIntro] = useState(true);
 	const [cycleCount, setCycleCount] = useState(0);
 	const [showControls, setShowControls] = useState(false);
 	const [isPaused, setIsPaused] = useState(false);
+	const [hasCompleted, setHasCompleted] = useState(false);
 	const introOpacity = useRef(new Animated.Value(0)).current;
+
+	// Reset state when screen becomes focused after completion
+	useEffect(() => {
+		if (isFocused && hasCompleted) {
+			// Reset everything to start fresh
+			setCycleCount(0);
+			setHasCompleted(false);
+			setShowIntro(true);
+			setIsActive(false);
+			setIsPaused(false);
+			introOpacity.setValue(0);
+		}
+	}, [isFocused]);
 
 	// Fade in intro text and start breathing after delay
 	useEffect(() => {
+		if (!isFocused) return; // Don't start if not focused
+
 		// Fade in intro text
 		Animated.timing(introOpacity, {
 			toValue: 1,
@@ -44,7 +62,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 		}, INTRO_DURATION);
 
 		return () => clearTimeout(timer);
-	}, []);
+	}, [isFocused, hasCompleted]);
 
 	// Handle cycle completion
 	const handleCycleComplete = () => {
@@ -52,8 +70,11 @@ export default function Breathing({ navigation }: BreathingProps) {
 		setCycleCount(newCycleCount);
 
 		if (newCycleCount >= TOTAL_CYCLES) {
-			// Navigate to Mantra screen after 4 cycles
-			navigation.navigate("Mantra");
+			setHasCompleted(true);
+			// Only navigate to Mantra screen if this screen is currently visible
+			if (isFocused) {
+				navigation.navigate("Mantra");
+			}
 		}
 	};
 
@@ -68,12 +89,12 @@ export default function Breathing({ navigation }: BreathingProps) {
 	};
 
 	return (
-		<ScreenFrame currentScreen="Breathing">
+		<ScreenFrame>
 			<Pressable style={styles.container} onPress={toggleControls}>
 				{/* Breathing animation component */}
 				<SimpleBreathing
 					isActive={isActive}
-					isPaused={isPaused}
+					isPaused={isPaused || !isFocused} // Auto-pause when screen not focused
 					onCycleComplete={handleCycleComplete}
 				/>
 
