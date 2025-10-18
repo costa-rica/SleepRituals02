@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
 	},
 	progressContainer: {
 		position: "absolute",
-		top: 80,
+		top: 48,
 		left: 40,
 		right: 40,
 		flexDirection: "row",
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
 	},
 	controlsContainer: {
 		position: "absolute",
-		bottom: 200,
+		bottom: 48,
 		left: 40,
 		right: 40,
 		flexDirection: "row",
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
 	},
 	introContainer: {
 		position: "absolute",
-		bottom: 120,
+		bottom: 200,
 		left: 40,
 		right: 40,
 		alignItems: "center",

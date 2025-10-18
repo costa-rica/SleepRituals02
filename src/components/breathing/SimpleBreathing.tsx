@@ -302,10 +302,11 @@ const styles = StyleSheet.create({
   circleContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: -48,
   },
   textContainer: {
     position: 'absolute',
-    bottom: 120,
+    bottom: 200,
   },
   instructionText: {
     fontSize: 16,
