@@ -78,42 +78,47 @@ const ScreenFrame: React.FC<ScreenFrameProps> = ({
 
 			{/* Navigation Wheel Header */}
 			<View style={styles.navigationWheel}>
-				{/* Previous Screen (left) */}
-				{prevScreen && (
+				{/* Left side container - takes up space to balance right */}
+				<View style={styles.navSideLeft}>
+					{prevScreen && (
+						<Text
+							style={[
+								styles.navigationText,
+								styles.navLeftText,
+								{ opacity: prevScreen.opacity },
+							]}
+						>
+							{prevScreen.title}
+						</Text>
+					)}
+				</View>
+
+				{/* Current Screen (center) - Always centered */}
+				<View style={styles.navCenter}>
 					<Text
 						style={[
 							styles.navigationText,
-							styles.navigationLeft,
-							{ opacity: prevScreen.opacity },
+							{ opacity: currentScreenItem.opacity },
 						]}
 					>
-						{prevScreen.title}
+						{currentScreenItem.title}
 					</Text>
-				)}
+				</View>
 
-				{/* Current Screen (center) */}
-				<Text
-					style={[
-						styles.navigationText,
-						styles.navigationCenter,
-						{ opacity: currentScreenItem.opacity },
-					]}
-				>
-					{currentScreenItem.title}
-				</Text>
-
-				{/* Next Screen (right) */}
-				{nextScreen && (
-					<Text
-						style={[
-							styles.navigationText,
-							styles.navigationRight,
-							{ opacity: nextScreen.opacity },
-						]}
-					>
-						{nextScreen.title}
-					</Text>
-				)}
+				{/* Right side container - takes up space to balance left */}
+				<View style={styles.navSideRight}>
+					{nextScreen && (
+						<Text
+							style={[
+								styles.navigationText,
+								styles.navRightText,
+								{ opacity: nextScreen.opacity },
+							]}
+						>
+							{nextScreen.title}
+						</Text>
+					)}
+				</View>
 			</View>
 
 			{/* Screen Content */}
@@ -142,34 +147,36 @@ const styles = StyleSheet.create({
 		opacity: 0.3,
 	},
 	navigationWheel: {
-		flexDirection: "row",
-		justifyContent: "center",
-		alignItems: "flex-start",
-		paddingTop: 60,
-		paddingHorizontal: 20,
+		paddingTop: 80,
 		zIndex: 10,
-		position: "relative",
 		width: "100%",
+		flexDirection: "row",
+		alignItems: "center",
+	},
+	navSideLeft: {
+		flex: 1, // Takes equal space as right side to balance
+		alignItems: "flex-end", // Aligns content to the right
+	},
+	navSideRight: {
+		flex: 1, // Takes equal space as left side to balance
+		alignItems: "flex-start", // Aligns content to the left
+	},
+	navCenter: {
+		// Center container - no flex, just takes width of text
+	},
+	navLeftText: {
+		paddingRight: 40, // 40px gap from center text
+	},
+	navRightText: {
+		paddingLeft: 40, // 40px gap from center text
 	},
 	navigationText: {
-		fontSize: 16,
+		fontSize: 14,
 		fontWeight: "600",
 		color: "#FFFFFF",
 		letterSpacing: 1,
 		lineHeight: 20,
-	},
-	navigationLeft: {
-		position: "absolute",
-		left: 20,
-		top: 60,
-	},
-	navigationCenter: {
-		// This will be centered by the parent's justifyContent: center
-	},
-	navigationRight: {
-		position: "absolute",
-		right: 20,
-		top: 60,
+		textAlign: "center",
 	},
 	content: {
 		flex: 1,

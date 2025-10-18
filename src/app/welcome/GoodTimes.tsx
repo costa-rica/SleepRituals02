@@ -1,18 +1,34 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from "react-native";
-import React, { useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Keyboard, TouchableWithoutFeedback } from "react-native";
+import React, { useState, useRef, useEffect } from "react";
+import { LinearGradient } from "expo-linear-gradient";
 import type { GoodTimesProps } from "../../types/navigation";
 import ScreenFrame from "../../components/ScreenFrame";
 
 interface Entry {
 	id: number;
 	text: string;
-	disabled: boolean;
 }
+
+// Array of inspiring placeholder questions
+const PLACEHOLDERS = [
+	"My son laughed at my joke",
+	"A stranger smiled at me",
+	"I finished something I'd been putting off",
+	"Someone said thank you",
+	"I had a moment of peace",
+	"Something made me laugh",
+	"I helped someone today",
+	"I learned something new",
+];
 
 export default function GoodTimes({ navigation }: GoodTimesProps) {
 	const [entries, setEntries] = useState<Entry[]>([
-		{ id: 0, text: "", disabled: false }
+		{ id: 0, text: "" }
 	]);
+	const inputRefs = useRef<Map<number, TextInput>>(new Map());
+	const scrollViewRef = useRef<ScrollView>(null);
+	const [focusId, setFocusId] = useState<number | null>(null);
+	const [showGradient, setShowGradient] = useState(false);
 
 	const handleTextChange = (id: number, text: string) => {
 		setEntries((prevEntries) =>
@@ -23,22 +39,58 @@ export default function GoodTimes({ navigation }: GoodTimesProps) {
 	};
 
 	const handleAddNew = () => {
-		const currentEntry = entries.find((e) => !e.disabled);
-		if (currentEntry && currentEntry.text.length > 0) {
-			setEntries((prevEntries) => [
-				...prevEntries.map((e) =>
-					e.id === currentEntry.id ? { ...e, disabled: true } : e
-				),
-				{ id: Date.now(), text: "", disabled: false }
-			]);
+		const newId = Date.now();
+		setEntries((prevEntries) => [
+			...prevEntries,
+			{ id: newId, text: "" }
+		]);
+		setFocusId(newId);
+		// Auto-scroll to bottom when new entry is added
+		setTimeout(() => {
+			scrollViewRef.current?.scrollToEnd({ animated: true });
+		}, 100);
+	};
+
+	useEffect(() => {
+		if (focusId !== null) {
+			const inputRef = inputRefs.current.get(focusId);
+			if (inputRef) {
+				inputRef.focus();
+				setFocusId(null);
+			}
+		}
+	}, [focusId, entries]);
+
+	const handleScroll = (event: any) => {
+		const offsetY = event.nativeEvent.contentOffset.y;
+		setShowGradient(offsetY > 10);
+	};
+
+	const handleBlur = (id: number) => {
+		const entry = entries.find((e) => e.id === id);
+		// Only remove if the field is empty AND there's more than one entry
+		if (entry && entry.text.trim() === "" && entries.length > 1) {
+			setEntries((prevEntries) => prevEntries.filter((e) => e.id !== id));
 		}
 	};
 
-	const currentEntry = entries.find((e) => !e.disabled);
-	const showNewButton = currentEntry && currentEntry.text.length > 0;
+	const handleSubmitEditing = (id: number) => {
+		const entry = entries.find((e) => e.id === id);
+		if (entry && entry.text.trim() !== "") {
+			// Field has text, create a new field
+			handleAddNew();
+		} else if (entry && entry.text.trim() === "" && entries.length > 1) {
+			// Field is empty, remove it
+			setEntries((prevEntries) => prevEntries.filter((e) => e.id !== id));
+		}
+	};
+
+	// Show "+ New" button when all fields have text
+	const allFieldsHaveText = entries.every((entry) => entry.text.trim().length > 0);
+	const showNewButton = allFieldsHaveText;
 
 	// Next button is enabled when at least one entry has text
-	const hasAtLeastOneEntry = entries.some((entry) => entry.text.length > 0);
+	const hasAtLeastOneEntry = entries.some((entry) => entry.text.trim().length > 0);
 
 	const handleNext = () => {
 		if (hasAtLeastOneEntry) {
@@ -48,55 +100,80 @@ export default function GoodTimes({ navigation }: GoodTimesProps) {
 
 	return (
 		<ScreenFrame currentScreen="GoodTimes">
-			<View style={styles.container}>
-				<Text style={styles.questionText}>
-					What are some things that made you happy today?
-				</Text>
-
-				<View style={styles.entriesContainer}>
-					{entries.map((entry) => (
-						<TextInput
-							key={entry.id}
-							style={[
-								styles.input,
-								entry.disabled && styles.inputDisabled
-							]}
-							value={entry.text}
-							onChangeText={(text) => handleTextChange(entry.id, text)}
-							placeholder={entry.id === 0 ? "My son laughed at my joke" : ""}
-							placeholderTextColor="rgba(255, 255, 255, 0.3)"
-							editable={!entry.disabled}
-							multiline={false}
-						/>
-					))}
-
-					{showNewButton && (
-						<TouchableOpacity onPress={handleAddNew} style={styles.newButton}>
-							<Text style={styles.newButtonText}>+ New</Text>
-						</TouchableOpacity>
-					)}
-				</View>
-
-				<View style={styles.bottomContainer}>
-					<TouchableOpacity
-						style={[
-							styles.nextButton,
-							!hasAtLeastOneEntry && styles.nextButtonDisabled
-						]}
-						onPress={handleNext}
-						disabled={!hasAtLeastOneEntry}
+			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+				<View style={styles.container}>
+					<ScrollView
+						ref={scrollViewRef}
+						style={styles.scrollView}
+						contentContainerStyle={styles.scrollViewContent}
+						showsVerticalScrollIndicator={true}
+						onScroll={handleScroll}
+						scrollEventThrottle={16}
+						keyboardShouldPersistTaps="handled"
 					>
-						<Text
-							style={[
-								styles.nextButtonText,
-								!hasAtLeastOneEntry && styles.nextButtonTextDisabled
-							]}
-						>
-							Next
+						<Text style={styles.questionText}>
+							What are some things that made you happy today?
 						</Text>
-					</TouchableOpacity>
+
+						{entries.map((entry, index) => (
+							<TextInput
+								key={entry.id}
+								ref={(ref) => {
+									if (ref) {
+										inputRefs.current.set(entry.id, ref);
+									} else {
+										inputRefs.current.delete(entry.id);
+									}
+								}}
+								style={styles.input}
+								value={entry.text}
+								onChangeText={(text) => handleTextChange(entry.id, text)}
+								onBlur={() => handleBlur(entry.id)}
+								onSubmitEditing={() => handleSubmitEditing(entry.id)}
+								returnKeyType="done"
+								blurOnSubmit={false}
+								placeholder={PLACEHOLDERS[index % PLACEHOLDERS.length]}
+								placeholderTextColor="rgba(255, 255, 255, 0.3)"
+								multiline={false}
+							/>
+						))}
+
+						{showNewButton && (
+							<TouchableOpacity onPress={handleAddNew} style={styles.newButton}>
+								<Text style={styles.newButtonText}>+ New</Text>
+							</TouchableOpacity>
+						)}
+					</ScrollView>
+
+					{showGradient && (
+						<LinearGradient
+							colors={['#0F1015', 'transparent']}
+							style={styles.gradientOverlay}
+							pointerEvents="none"
+						/>
+					)}
+
+					<View style={styles.bottomContainer}>
+						<TouchableOpacity
+							style={[
+								styles.nextButton,
+								!hasAtLeastOneEntry && styles.nextButtonDisabled
+							]}
+							onPress={handleNext}
+							disabled={!hasAtLeastOneEntry}
+						>
+							<Text
+								style={[
+									styles.nextButtonText,
+									!hasAtLeastOneEntry && styles.nextButtonTextDisabled
+								]}
+							>
+								Next
+							</Text>
+						</TouchableOpacity>
+					</View>
 				</View>
-			</View>
+			</TouchableWithoutFeedback>
 		</ScreenFrame>
 	);
 }
@@ -104,8 +181,15 @@ export default function GoodTimes({ navigation }: GoodTimesProps) {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		paddingHorizontal: 24,
+		paddingLeft: 24,
 		paddingTop: 40,
+	},
+	scrollView: {
+		flex: 1,
+	},
+	scrollViewContent: {
+		paddingRight: 24,
+		paddingBottom: 68, // Space for bottom container (Next button area) + spacing
 	},
 	questionText: {
 		color: "#FFFFFF",
@@ -114,9 +198,13 @@ const styles = StyleSheet.create({
 		marginBottom: 40,
 		lineHeight: 32,
 	},
-	entriesContainer: {
-		width: "100%",
-		flex: 1,
+	gradientOverlay: {
+		position: "absolute",
+		top: 40, // Same as container paddingTop
+		left: 0,
+		right: 0,
+		height: 60,
+		zIndex: 10,
 	},
 	input: {
 		backgroundColor: "rgba(255, 255, 255, 0.05)",
@@ -130,10 +218,6 @@ const styles = StyleSheet.create({
 		marginBottom: 16,
 		minHeight: 56,
 	},
-	inputDisabled: {
-		backgroundColor: "rgba(255, 255, 255, 0.08)",
-		borderColor: "rgba(255, 255, 255, 0.15)",
-	},
 	newButton: {
 		paddingVertical: 8,
 	},
@@ -143,6 +227,7 @@ const styles = StyleSheet.create({
 	},
 	bottomContainer: {
 		paddingVertical: 24,
+		paddingHorizontal: 24,
 		width: "100%",
 	},
 	nextButton: {
