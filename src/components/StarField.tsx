@@ -87,9 +87,6 @@ const styles = StyleSheet.create({
 		height: SCREEN_HEIGHT,
 		top: 0,
 		left: 0,
-		// Performance optimizations
-		shouldRasterizeIOS: true,
-		renderToHardwareTextureAndroid: true,
 	},
 	star: {
 		position: "absolute",
