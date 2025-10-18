@@ -99,7 +99,7 @@ export default function GoodTimes({ navigation }: GoodTimesProps) {
 	};
 
 	return (
-		<ScreenFrame currentScreen="GoodTimes">
+		<ScreenFrame>
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<View style={styles.container}>
 					<ScrollView
@@ -182,13 +182,13 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		paddingLeft: 24,
+		paddingRight: 24,
 		paddingTop: 40,
 	},
 	scrollView: {
 		flex: 1,
 	},
 	scrollViewContent: {
-		paddingRight: 24,
 		paddingBottom: 68, // Space for bottom container (Next button area) + spacing
 	},
 	questionText: {
@@ -227,7 +227,6 @@ const styles = StyleSheet.create({
 	},
 	bottomContainer: {
 		paddingVertical: 24,
-		paddingHorizontal: 24,
 		width: "100%",
 	},
 	nextButton: {
