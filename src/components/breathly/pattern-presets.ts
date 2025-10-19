@@ -46,7 +46,7 @@ export const createStepsFromPattern = (
       id: 'afterExhale',
       label: 'Hold',
       duration: holdOut,
-      showDots: false,
+      showDots: true,
       skipped: false,
     },
   ];

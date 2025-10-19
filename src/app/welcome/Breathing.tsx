@@ -99,7 +99,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 		<ScreenFrame>
 			<Pressable style={styles.container} onPress={toggleControls}>
 				{/* Breathing animation component */}
-				{isActive && !showIntro && (
+				{isActive && !showIntro && !hasCompleted && (
 					<BreathlyExercise
 					color="#8B7FB8"
 					isPaused={isPaused}
