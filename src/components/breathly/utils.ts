@@ -14,7 +14,7 @@ export const animate = (
 ): Animated.CompositeAnimation => {
   return Animated.timing(value, {
     ...config,
-    easing: config.easing || Easing.linear,
+    easing: config.easing || Easing.inOut(Easing.ease), // Smooth ease-in-out curve
     useNativeDriver: true,
   });
 };

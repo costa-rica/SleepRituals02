@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: -120, // Move animation up 120 pixels
   },
   descriptionContainer: {
     position: 'absolute',

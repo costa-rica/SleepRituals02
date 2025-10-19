@@ -18,7 +18,12 @@
       "Bash(git merge:*)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm start)",
+      "Bash(cat:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(killall node:*)",
+      "Bash(kill:*)"
     ],
     "deny": [],
     "ask": []
