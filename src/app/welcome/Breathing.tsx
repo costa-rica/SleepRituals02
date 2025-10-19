@@ -66,16 +66,19 @@ export default function Breathing({ navigation }: BreathingProps) {
 
 	// Handle cycle completion
 	const handleCycleComplete = () => {
-		const newCycleCount = cycleCount + 1;
-		setCycleCount(newCycleCount);
+		setCycleCount((prevCount) => {
+			const newCycleCount = prevCount + 1;
 
-		if (newCycleCount >= TOTAL_CYCLES) {
-			setHasCompleted(true);
-			// Only navigate to Mantra screen if this screen is currently visible
-			if (isFocused) {
-				navigation.navigate("Mantra");
+			if (newCycleCount >= TOTAL_CYCLES) {
+				setHasCompleted(true);
+				// Only navigate to Mantra screen if this screen is currently visible
+				if (isFocused) {
+					navigation.navigate("Mantra");
+				}
 			}
-		}
+
+			return newCycleCount;
+		});
 	};
 
 	// Toggle controls visibility
@@ -108,7 +111,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 								key={index}
 								style={[
 									styles.progressBar,
-									index <= cycleCount && styles.progressBarActive,
+									index < cycleCount && styles.progressBarActive,
 								]}
 							/>
 						))}
