@@ -48,18 +48,12 @@ export const useExerciseLoop = (
   onCycleComplete?: () => void
 ) => {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [cycleCount, setCycleCount] = useState(0);
   const textAnimVal = useRef(new Animated.Value(0)).current;
   const exerciseAnimVal = useRef(new Animated.Value(0)).current;
   const cleanupRef = useRef<(() => void) | null>(null);
-  const isPausedRef = useRef(isPaused);
+  const isInitialStepRef = useRef(true); // Track if this is the first call to step 0
   const activeSteps = stepsMetadata.filter((step) => !step.skipped);
   const currentStep: StepMetadata | undefined = activeSteps[currentStepIndex];
-
-  // Update ref when isPaused changes
-  useEffect(() => {
-    isPausedRef.current = isPaused;
-  }, [isPaused]);
 
   const animateStep = (toValue: number, duration: number) => {
     return Animated.stagger(duration - textAnimDuration, [
@@ -82,16 +76,16 @@ export const useExerciseLoop = (
 
   const handleStepChange = (stepIndex: number) => {
     setCurrentStepIndex(stepIndex);
+
     // Check if we completed a full cycle (back to step 0)
     if (stepIndex === 0 && onCycleComplete) {
-      setCycleCount((prev) => {
-        const newCount = prev + 1;
-        if (newCount > 0) {
-          // Don't call on first cycle (initial state)
-          onCycleComplete();
-        }
-        return newCount;
-      });
+      if (isInitialStepRef.current) {
+        // This is the first call after mount/resume, don't trigger callback
+        isInitialStepRef.current = false;
+      } else {
+        // This is a real cycle completion
+        onCycleComplete();
+      }
     }
   };
 
@@ -104,6 +98,9 @@ export const useExerciseLoop = (
       }
       return;
     }
+
+    // Mark as initial step when starting/resuming
+    isInitialStepRef.current = true;
 
     // Start or resume animations when not paused
     const createStepAnimations = () =>
