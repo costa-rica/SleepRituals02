@@ -11,15 +11,25 @@ import { patternPresets, createStepsFromPattern } from './pattern-presets';
 
 interface Props {
   color?: string;
+  isPaused?: boolean;
+  onCycleComplete?: () => void;
 }
 
-export const BreathlyExercise: FC<Props> = ({ color = '#8B7FB8' }) => {
+export const BreathlyExercise: FC<Props> = ({
+  color = '#8B7FB8',
+  isPaused = false,
+  onCycleComplete
+}) => {
   // Get square breathing pattern
   const squarePattern = patternPresets.square;
   const stepsMetadata = createStepsFromPattern(squarePattern);
 
   // Use the exercise loop hook
-  const { currentStep, exerciseAnimVal, textAnimVal } = useExerciseLoop(stepsMetadata);
+  const { currentStep, exerciseAnimVal, textAnimVal } = useExerciseLoop(
+    stepsMetadata,
+    isPaused,
+    onCycleComplete
+  );
 
   return (
     <View style={styles.container}>
