@@ -25,7 +25,7 @@ export const createStepsFromPattern = (
       id: 'inhale',
       label: 'Breathe in',
       duration: inhale,
-      showDots: true,
+      showDots: false,
       skipped: false,
     },
     {
@@ -39,7 +39,7 @@ export const createStepsFromPattern = (
       id: 'exhale',
       label: 'Breathe out',
       duration: exhale,
-      showDots: true,
+      showDots: false,
       skipped: false,
     },
     {

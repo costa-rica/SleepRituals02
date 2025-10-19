@@ -115,7 +115,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 								key={index}
 								style={[
 									styles.progressBar,
-									index < cycleCount && styles.progressBarActive,
+									index === cycleCount && styles.progressBarActive,
 								]}
 							/>
 						))}
