@@ -2,11 +2,14 @@ import { View, Text, Easing, Animated } from "react-native";
 import React, { useState } from "react";
 import { NavigationContainer, NavigationState } from "@react-navigation/native";
 import { createStackNavigator, TransitionPresets, StackCardInterpolationProps } from "@react-navigation/stack";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
 import Splash from "./welcome/Splash";
 import GoodTimes from "./welcome/GoodTimes";
 import Breathing from "./welcome/Breathing";
 import Mantra from "./welcome/Mantra";
 import BackgroundLayer from "../components/BackgroundLayer";
+import { store, persistor } from "../store";
 
 import type { RootStackParamList } from "../types/navigation";
 const Stack = createStackNavigator<RootStackParamList>();
@@ -97,61 +100,65 @@ const Index = () => {
 	const isGoingBack = screenIndex < prevScreenIndex;
 
 	return (
-		<NavigationContainer ref={navigationRef} onStateChange={handleNavigationStateChange}>
-			<BackgroundLayer
-				screenIndex={screenIndex}
-				currentScreen={currentScreen}
-				navigation={navigationRef.current}
-			>
-				<Stack.Navigator
-					screenOptions={{
-						headerShown: false,
-						cardStyleInterpolator: isGoingBack ? customSlideInterpolatorReverse : customSlideInterpolator,
-						transitionSpec: {
-							open: {
-								animation: 'timing',
-								config: {
-									duration: 400,
-									easing: Easing.bezier(0.4, 0.0, 0.2, 1.0), // Gentle ease in/out for sleepy users
+		<Provider store={store}>
+			<PersistGate loading={null} persistor={persistor}>
+				<NavigationContainer ref={navigationRef} onStateChange={handleNavigationStateChange}>
+					<BackgroundLayer
+						screenIndex={screenIndex}
+						currentScreen={currentScreen}
+						navigation={navigationRef.current}
+					>
+						<Stack.Navigator
+							screenOptions={{
+								headerShown: false,
+								cardStyleInterpolator: isGoingBack ? customSlideInterpolatorReverse : customSlideInterpolator,
+								transitionSpec: {
+									open: {
+										animation: 'timing',
+										config: {
+											duration: 400,
+											easing: Easing.bezier(0.4, 0.0, 0.2, 1.0), // Gentle ease in/out for sleepy users
+										},
+									},
+									close: {
+										animation: 'timing',
+										config: {
+											duration: 400,
+											easing: Easing.bezier(0.4, 0.0, 0.2, 1.0), // Gentle ease in/out for sleepy users
+										},
+									},
 								},
-							},
-							close: {
-								animation: 'timing',
-								config: {
-									duration: 400,
-									easing: Easing.bezier(0.4, 0.0, 0.2, 1.0), // Gentle ease in/out for sleepy users
-								},
-							},
-						},
-						cardStyle: { backgroundColor: 'transparent' },
-						detachPreviousScreen: false, // Keep previous screen mounted during transition
-					}}
-				>
-					<Stack.Screen
-						name="GoodTimes"
-						component={GoodTimes}
-						options={{
-							cardStyleInterpolator: isGoingBack ? customSlideInterpolatorReverse : customSlideInterpolator,
-						}}
-					/>
-					<Stack.Screen
-						name="Breathing"
-						component={Breathing}
-						options={{
-							cardStyleInterpolator: isGoingBack ? customSlideInterpolatorReverse : customSlideInterpolator,
-						}}
-					/>
-					<Stack.Screen
-						name="Mantra"
-						component={Mantra}
-						options={{
-							cardStyleInterpolator: isGoingBack ? customSlideInterpolatorReverse : customSlideInterpolator,
-						}}
-					/>
-					<Stack.Screen name="Splash" component={Splash} />
-				</Stack.Navigator>
-			</BackgroundLayer>
-		</NavigationContainer>
+								cardStyle: { backgroundColor: 'transparent' },
+								detachPreviousScreen: false, // Keep previous screen mounted during transition
+							}}
+						>
+							<Stack.Screen
+								name="GoodTimes"
+								component={GoodTimes}
+								options={{
+									cardStyleInterpolator: isGoingBack ? customSlideInterpolatorReverse : customSlideInterpolator,
+								}}
+							/>
+							<Stack.Screen
+								name="Breathing"
+								component={Breathing}
+								options={{
+									cardStyleInterpolator: isGoingBack ? customSlideInterpolatorReverse : customSlideInterpolator,
+								}}
+							/>
+							<Stack.Screen
+								name="Mantra"
+								component={Mantra}
+								options={{
+									cardStyleInterpolator: isGoingBack ? customSlideInterpolatorReverse : customSlideInterpolator,
+								}}
+							/>
+							<Stack.Screen name="Splash" component={Splash} />
+						</Stack.Navigator>
+					</BackgroundLayer>
+				</NavigationContainer>
+			</PersistGate>
+		</Provider>
 	);
 };
 
