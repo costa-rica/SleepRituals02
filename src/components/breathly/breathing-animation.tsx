@@ -7,15 +7,11 @@
  * Original author: Matteo Mazzarolo
  */
 
-import setColor from "color";
-import { useColorScheme } from "nativewind";
 import React, { FC, useEffect, useRef } from "react";
-import { Animated, View } from "react-native";
-import { colors } from "@breathly/design/colors";
-import { shortestDeviceDimension } from "@breathly/design/metrics";
-import { animate } from "@breathly/utils/animate";
-import { times } from "@breathly/utils/times";
+import { Animated, View, StyleSheet } from "react-native";
+import { animate, times, getShortestDeviceDimension } from "./utils";
 
+const shortestDeviceDimension = getShortestDeviceDimension();
 const circleWidth = shortestDeviceDimension / 2;
 const MOUNT_ANIMATION_DURATION = 300;
 
@@ -24,8 +20,7 @@ interface Props {
   color?: string;
 }
 
-export const BreathingAnimation: FC<Props> = ({ animationValue, color = colors.pastel.orange }) => {
-  const { colorScheme } = useColorScheme();
+export const BreathingAnimation: FC<Props> = ({ animationValue, color = '#8B7FB8' }) => {
   const mountAnimationValue = useRef(new Animated.Value(0)).current;
   const innerOpacity = animationValue.interpolate({
     inputRange: [0, 0.1, 1],
@@ -35,6 +30,7 @@ export const BreathingAnimation: FC<Props> = ({ animationValue, color = colors.p
     inputRange: [0, 0.1, 1],
     outputRange: [1.02, 0.9, 0.9],
   });
+
   useEffect(() => {
     animate(mountAnimationValue, { toValue: 1, duration: MOUNT_ANIMATION_DURATION }).start();
   }, []);
@@ -47,42 +43,28 @@ export const BreathingAnimation: FC<Props> = ({ animationValue, color = colors.p
         opacity: mountAnimationValue,
       }}
     >
-      <View className="absolute top-0 left-0 right-0 bottom-0 z-30 items-center justify-center">
+      <View style={styles.innerCircleContainer}>
         <Animated.View
-          className="absolute bg-white"
-          style={{
-            width: circleWidth,
-            height: circleWidth,
-            borderRadius: circleWidth / 2,
-            backgroundColor: setColor(color).lighten(0.2).rgb().string(), // TODO:
-            zIndex: 0,
-            opacity: innerOpacity,
-            transform: [
-              {
-                scale: innerScale,
-              },
-            ],
-          }}
+          style={[
+            styles.innerCircle,
+            {
+              width: circleWidth,
+              height: circleWidth,
+              borderRadius: circleWidth / 2,
+              backgroundColor: color,
+              opacity: innerOpacity,
+              transform: [{ scale: innerScale }],
+            },
+          ]}
         />
       </View>
       <View
-        className="absolute"
-        style={{ left: shortestDeviceDimension / 4, top: shortestDeviceDimension / 4 }}
+        style={{
+          position: 'absolute',
+          left: shortestDeviceDimension / 4,
+          top: shortestDeviceDimension / 4,
+        }}
       >
-        {
-          // In dark mode we need to add a bit of brightness by rendering the animation with a
-          // white color below the "real" animation.
-          colorScheme === "dark" &&
-            times(8).map((index) => (
-              <RotatingCircle
-                key={`dark-mode-circle-${index}`}
-                color="white"
-                opacity={0.3}
-                animationValue={animationValue}
-                index={index}
-              />
-            ))
-        }
         {times(8).map((index) => (
           <RotatingCircle
             key={`circle-${index}`}
@@ -113,27 +95,43 @@ const RotatingCircle: FC<RotatingCircleProps> = ({ animationValue, opacity, inde
     inputRange: [0, 1],
     outputRange: [1, circleWidth / 6],
   });
+
   return (
     <Animated.View
-      className="absolute top-0 left-0 right-0 bottom-0 z-20"
       style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         opacity,
         backgroundColor: color,
         width: circleWidth,
         height: circleWidth,
         borderRadius: circleWidth / 2,
         transform: [
-          {
-            rotateZ: rotation,
-          },
-          {
-            translateX: translate,
-          },
-          {
-            translateY: translate,
-          },
+          { rotateZ: rotation },
+          { translateX: translate },
+          { translateY: translate },
         ],
       }}
     />
   );
 };
+
+const styles = StyleSheet.create({
+  innerCircleContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  innerCircle: {
+    position: 'absolute',
+    zIndex: 0,
+  },
+});

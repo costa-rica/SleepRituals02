@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import type { BreathingProps } from "../../types/navigation";
 import ScreenFrame from "../../components/ScreenFrame";
-import SimpleBreathing from "../../components/breathing/SimpleBreathing";
+import { BreathlyExercise } from "../../components/breathly/BreathlyExercise";
 import {
 	CustomizeAudioIcon,
 	PauseButtonIcon,
@@ -92,11 +92,9 @@ export default function Breathing({ navigation }: BreathingProps) {
 		<ScreenFrame>
 			<Pressable style={styles.container} onPress={toggleControls}>
 				{/* Breathing animation component */}
-				<SimpleBreathing
-					isActive={isActive}
-					isPaused={isPaused || !isFocused} // Auto-pause when screen not focused
-					onCycleComplete={handleCycleComplete}
-				/>
+				{isActive && !showIntro && (
+					<BreathlyExercise color="#8B7FB8" />
+				)}
 
 				{/* Cycle progress bars */}
 				{showControls && (

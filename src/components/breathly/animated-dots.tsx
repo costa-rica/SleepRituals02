@@ -8,11 +8,8 @@
  */
 
 import React, { FC, useEffect, useRef } from "react";
-import { Animated } from "react-native";
-import { animate } from "@breathly/utils/animate";
-import { interpolateScale } from "@breathly/utils/interpolate";
-import { times } from "@breathly/utils/times";
-import { useOnUpdate } from "@breathly/utils/use-on-update";
+import { Animated, StyleSheet } from "react-native";
+import { animate, interpolateScale, times, useOnUpdate } from "./utils";
 
 const dotSize = Math.floor(4);
 const fadeInAnimDuration = 400;
@@ -71,12 +68,12 @@ export const AnimatedDots: FC<Props> = ({ visible = false, numberOfDots, totalDu
   }));
 
   return (
-    <Animated.View className="flex-row items-center justify-center">
+    <Animated.View style={styles.container}>
       {times(numberOfDots).map((index) => (
         <Animated.View
           key={`dot_${index}`}
-          className="bg-slate-800 dark:bg-white"
           style={[
+            styles.dot,
             {
               width: dotSize,
               height: dotSize,
@@ -90,3 +87,14 @@ export const AnimatedDots: FC<Props> = ({ visible = false, numberOfDots, totalDu
     </Animated.View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dot: {
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+  },
+});
