@@ -10,6 +10,7 @@ import {
 	PlayButtonIcon,
 	ControlsButtonIcon,
 } from "../../components/breathing/BreathingIcons";
+import SlideUpLayoutUpdateRitual from "../../components/panels/SlideUpLayoutUpdateRitual";
 
 const INTRO_DURATION = 4000; // 4 seconds
 const TOTAL_CYCLES = 4;
@@ -22,6 +23,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 	const [showControls, setShowControls] = useState(false);
 	const [isPaused, setIsPaused] = useState(false);
 	const [hasCompleted, setHasCompleted] = useState(false);
+	const [showUpdateRitualPanel, setShowUpdateRitualPanel] = useState(false);
 	const introOpacity = useRef(new Animated.Value(0)).current;
 	const prevIsFocusedRef = useRef(isFocused);
 
@@ -157,7 +159,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 							style={styles.controlButton}
 							onPress={(e) => {
 								e.stopPropagation();
-								// Controls action (placeholder)
+								setShowUpdateRitualPanel(true);
 							}}
 						>
 							<View style={styles.buttonCircle}>
@@ -176,6 +178,12 @@ export default function Breathing({ navigation }: BreathingProps) {
 					</Animated.View>
 				)}
 			</Pressable>
+
+			{/* Update Ritual Panel */}
+			<SlideUpLayoutUpdateRitual
+				visible={showUpdateRitualPanel}
+				onClose={() => setShowUpdateRitualPanel(false)}
+			/>
 		</ScreenFrame>
 	);
 }
