@@ -211,8 +211,8 @@ const SimpleBreathing: React.FC<SimpleBreathingProps> = ({
   }, [currentPhase, isActive, isPaused]);
 
   // Calculate current circle size
-  const minSize = screenWidth * 0.1; // 10% of screen width
-  const maxSize = screenWidth * 0.9; // 90% of screen width
+  const minSize = screenWidth * 0.19125; // 19.125% of screen width (decreased by 15%)
+  const maxSize = screenWidth * 0.729; // 72.9% of screen width (decreased by 10% again)
 
   // Calculate current scale value for gradient logic
   const [currentScaleValue, setCurrentScaleValue] = useState(0);
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
   circleContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: -48,
+    marginTop: -96,
   },
   textContainer: {
     position: 'absolute',

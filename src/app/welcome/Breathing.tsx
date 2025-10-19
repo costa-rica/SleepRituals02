@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
 	},
 	progressContainer: {
 		position: "absolute",
-		top: 48,
+		top: 32,
 		left: 40,
 		right: 40,
 		flexDirection: "row",
