@@ -23,11 +23,15 @@ export default function Breathing({ navigation }: BreathingProps) {
 	const [isPaused, setIsPaused] = useState(false);
 	const [hasCompleted, setHasCompleted] = useState(false);
 	const introOpacity = useRef(new Animated.Value(0)).current;
+	const prevIsFocusedRef = useRef(isFocused);
 
 	// Reset state when screen becomes focused after completion
 	useEffect(() => {
-		if (isFocused && hasCompleted) {
-			// Reset everything to start fresh
+		const prevIsFocused = prevIsFocusedRef.current;
+		prevIsFocusedRef.current = isFocused;
+
+		// If screen just became focused and exercise was completed, reset everything
+		if (!prevIsFocused && isFocused && hasCompleted) {
 			setCycleCount(0);
 			setHasCompleted(false);
 			setShowIntro(true);
@@ -35,7 +39,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 			setIsPaused(false);
 			introOpacity.setValue(0);
 		}
-	}, [isFocused]);
+	}, [isFocused, hasCompleted]);
 
 	// Fade in intro text and start breathing after delay
 	useEffect(() => {
