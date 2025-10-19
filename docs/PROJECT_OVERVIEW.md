@@ -18,7 +18,7 @@ The app guides users through three key experiences:
 - **Framework:** React Native (TypeScript)
 - **Runtime:** Expo
 - **Navigation:** React Navigation (native-stack)
-- **State Management:** Redux (planned for journal persistence)
+- **State Management:** Redux Toolkit with redux-persist (AsyncStorage)
 - **Architecture:** Classic navigation structure (not file-based routing)
 - **Assets:** Located in `src/assets/expo-assets`
 
@@ -29,12 +29,24 @@ All source files reside under the `/src` directory:
 ```
 src/
 ├── app/
-│   ├── App.tsx              # Main navigation container
+│   ├── App.tsx              # Main navigation container (with Redux Provider)
 │   ├── index.tsx            # Entry point (defined in package.json)
-│   └── ...
+│   └── welcome/             # Welcome flow screens (GoodTimes, Breathing, Mantra)
 ├── components/
-│   └── screen-frames/
-│       └── ScreenFrame.tsx  # Shared layout component for all screens
+│   ├── screen-frames/
+│   │   └── ScreenFrame.tsx  # Shared layout component for all screens
+│   ├── breathing/           # Breathing-specific components
+│   ├── breathly/            # Breathing animation logic
+│   └── panels/              # Slide-up panel components
+├── store/
+│   ├── features/
+│   │   ├── sound/
+│   │   │   └── soundSlice.ts       # Audio settings (voice, music, volumes)
+│   │   └── breathing/
+│   │       └── breathingSlice.ts   # Breathing exercise state
+│   ├── store.ts             # Root store configuration with redux-persist
+│   ├── hooks.ts             # Typed Redux hooks (useAppSelector, useAppDispatch)
+│   └── index.ts             # Barrel exports
 ├── assets/
 │   └── expo-assets/
 ├── types/
@@ -131,9 +143,10 @@ These serve as references for layout proportions, font styling, and color gradie
 
 ## Future Enhancements
 
-- **Persistent Journal:** Replace Redux local store with database-backed persistence.
-- **Audio Library Expansion:** Add multiple mantra and ambient tracks.
+- **Database Migration:** Consider migrating from AsyncStorage to a database solution for larger-scale journal data.
+- **Audio Library Expansion:** Add multiple mantra and ambient tracks with user selection.
 - **Personalization:** Add optional daily reminders or analytics for mood tracking.
+- **Cloud Sync:** Sync user data across devices via cloud storage.
 
 ---
 

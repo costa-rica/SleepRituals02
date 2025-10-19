@@ -23,7 +23,21 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  version: 1,
+  version: 2, // Incremented to invalidate old cached state
+  migrate: (state: any) => {
+    // If migrating from version 1 to 2, ensure breathing state has new fields
+    if (state && state.breathing) {
+      return Promise.resolve({
+        ...state,
+        breathing: {
+          ...state.breathing,
+          exerciseTitle: state.breathing.exerciseTitle || 'Box 4-4-4-4',
+          exerciseDescription: state.breathing.exerciseDescription || 'Inhale, hold, exhale, and hold for four counts each to calm your body and mind.',
+        },
+      });
+    }
+    return Promise.resolve(state);
+  },
 };
 
 // Create persisted reducer

@@ -17,6 +17,7 @@ const TOTAL_CYCLES = 4;
 
 export default function Breathing({ navigation }: BreathingProps) {
 	const isFocused = useIsFocused();
+
 	const [isActive, setIsActive] = useState(false);
 	const [showIntro, setShowIntro] = useState(true);
 	const [cycleCount, setCycleCount] = useState(0);
@@ -103,10 +104,10 @@ export default function Breathing({ navigation }: BreathingProps) {
 				{/* Breathing animation component */}
 				{isActive && !showIntro && !hasCompleted && (
 					<BreathlyExercise
-					color="#8B7FB8"
-					isPaused={isPaused}
-					onCycleComplete={handleCycleComplete}
-				/>
+						color="#8B7FB8"
+						isPaused={isPaused}
+						onCycleComplete={handleCycleComplete}
+					/>
 				)}
 
 				{/* Cycle progress bars */}

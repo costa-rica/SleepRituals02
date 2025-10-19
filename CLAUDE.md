@@ -16,7 +16,7 @@ Journal entries persist using Redux store (future versions may use a database).
 
 - **Framework**: React Native with Expo (TypeScript)
 - **Navigation**: React Navigation (native-stack)
-- **State Management**: Redux (planned for journal persistence)
+- **State Management**: Redux Toolkit with redux-persist
 - **Architecture**: Classic navigation structure (not Expo Router file-based routing)
 
 ### Custom Project Structure
@@ -69,8 +69,43 @@ Navigation is configured in `src/app/App.tsx` using `createNativeStackNavigator`
 
 Screens are organized by feature area:
 
-- `src/app/welcome/` - Welcome flow screens (Splash, GoodTimes)
-- Future screens for Breathing and Mantra will follow similar organization
+- `src/app/welcome/` - Welcome flow screens (Splash, GoodTimes, Breathing, Mantra)
+- Screens are co-located with their feature flow for better organization
+
+### Types
+
+**Shared types** should be stored in the `src/types/` directory:
+
+- `src/types/navigation.ts` - Navigation types for all screens (RootStackParamList, screen props)
+- `src/types/breathly.ts` - (Future) Breathing exercise types when needed across multiple features
+- Types used only within a single component/module should remain co-located with that component
+- **Convention**: When a type is needed by more than one feature area, move it to `src/types/`
+
+### Stores
+
+**Redux state management** using Redux Toolkit with persistence:
+
+- **Store location**: `src/store/`
+- **Structure**: Feature-based slices following Redux Toolkit best practices
+  - `src/store/features/sound/soundSlice.ts` - Audio settings (narrator voice/volume, music name/volume)
+  - `src/store/features/breathing/breathingSlice.ts` - Breathing exercise state (exercise title/description, timing pattern, show instructions)
+- **Configuration**: `src/store/store.ts` - Root store with redux-persist configuration using AsyncStorage
+- **Typed hooks**: `src/store/hooks.ts` - Pre-typed `useAppDispatch` and `useAppSelector` hooks
+- **Exports**: `src/store/index.ts` - Barrel exports for clean imports
+
+**Redux persistence**:
+- All state is persisted to AsyncStorage automatically
+- Version-based migrations handle state shape changes
+- Increment `version` in persist config when adding/removing state fields
+
+**Usage example**:
+```typescript
+import { useAppSelector, useAppDispatch, updateBreatheExercise } from '../store';
+
+const exerciseTitle = useAppSelector((state) => state.breathing.exerciseTitle);
+const dispatch = useAppDispatch();
+dispatch(updateBreatheExercise({ /* ... */ }));
+```
 
 ### Design Reference
 
@@ -96,7 +131,8 @@ Refer to these for UI implementation details and variations.
 - **Type safety**: TypeScript strict mode is enabled. Pre-start hook runs `tsc --noEmit` to catch type errors before runtime
 - **Navigation typing**: Always use typed navigation props from `src/types/navigation.ts` when adding new screens
 - **Asset paths**: When adding assets, place them in `src/assets/expo-assets` and reference them correctly in `app.json`
-- **Redux setup**: Not yet implemented but planned for journal persistence
+- **Redux usage**: Always use typed hooks (`useAppSelector`, `useAppDispatch`) from `src/store` for type safety
+- **State persistence**: When modifying Redux state shape, increment the version in `src/store/store.ts` and add a migration if needed
 
 ## Implementation Difficulty Index
 
