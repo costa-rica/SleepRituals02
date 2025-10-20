@@ -17,11 +17,20 @@ interface PanelPlayerControlsProps {
 export default function PanelPlayerControls({
 	isPaused,
 	onCustomizeAudio = () =>
-		Alert.alert("Not Set Up", "The CustomizeAudioIcon button function has not been set up yet"),
+		Alert.alert(
+			"Not Set Up",
+			"The CustomizeAudioIcon button function has not been set up yet"
+		),
 	onTogglePlayPause = () =>
-		Alert.alert("Not Set Up", "The TogglePlayPause button function has not been set up yet"),
+		Alert.alert(
+			"Not Set Up",
+			"The TogglePlayPause button function has not been set up yet"
+		),
 	onOpenControls = () =>
-		Alert.alert("Not Set Up", "The ControlsButtonIcon button function has not been set up yet"),
+		Alert.alert(
+			"Not Set Up",
+			"The ControlsButtonIcon button function has not been set up yet"
+		),
 }: PanelPlayerControlsProps) {
 	return (
 		<View style={styles.controlsContainer}>

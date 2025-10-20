@@ -7,7 +7,8 @@ import { BreathingAnimation } from './breathing-animation';
 import { StepDescription } from './step-description';
 import { AnimatedDots } from './animated-dots';
 import { useExerciseLoop } from './use-exercise-loop';
-import { patternPresets, createStepsFromPattern } from './pattern-presets';
+import { StepMetadata } from './types';
+import { useAppSelector } from '../../store';
 
 interface Props {
   color?: string;
@@ -20,9 +21,43 @@ export const BreathlyExercise: FC<Props> = ({
   isPaused = false,
   onCycleComplete
 }) => {
-  // Get square breathing pattern
-  const squarePattern = patternPresets.square;
-  const stepsMetadata = createStepsFromPattern(squarePattern);
+  // Get breathing pattern from Redux state
+  const breatheIn = useAppSelector((state) => state.breathing.breatheIn);
+  const holdIn = useAppSelector((state) => state.breathing.holdIn);
+  const breatheOut = useAppSelector((state) => state.breathing.breatheOut);
+  const holdOut = useAppSelector((state) => state.breathing.holdOut);
+
+  // Create step metadata from Redux values (convert seconds to milliseconds)
+  const stepsMetadata: [StepMetadata, StepMetadata, StepMetadata, StepMetadata] = [
+    {
+      id: 'inhale',
+      label: 'Breathe in',
+      duration: breatheIn * 1000,
+      showDots: false,
+      skipped: breatheIn === 0,
+    },
+    {
+      id: 'afterInhale',
+      label: 'Hold',
+      duration: holdIn * 1000,
+      showDots: true,
+      skipped: holdIn === 0,
+    },
+    {
+      id: 'exhale',
+      label: 'Breathe out',
+      duration: breatheOut * 1000,
+      showDots: false,
+      skipped: breatheOut === 0,
+    },
+    {
+      id: 'afterExhale',
+      label: 'Hold',
+      duration: holdOut * 1000,
+      showDots: true,
+      skipped: holdOut === 0,
+    },
+  ];
 
   // Use the exercise loop hook
   const { currentStep, exerciseAnimVal, textAnimVal } = useExerciseLoop(
@@ -45,6 +80,7 @@ export const BreathlyExercise: FC<Props> = ({
               visible={true}
               numberOfDots={Math.floor(currentStep.duration / 1000)}
               totalDuration={currentStep.duration}
+              isPaused={isPaused}
             />
           )}
         </View>

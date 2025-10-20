@@ -18,10 +18,12 @@ interface Props {
   visible?: boolean;
   numberOfDots: number;
   totalDuration: number;
+  isPaused?: boolean;
 }
 
-export const AnimatedDots: FC<Props> = ({ visible = false, numberOfDots, totalDuration }) => {
+export const AnimatedDots: FC<Props> = ({ visible = false, numberOfDots, totalDuration, isPaused = false }) => {
   const dotAnimVals = useRef(times(numberOfDots).map(() => new Animated.Value(0))).current;
+  const animationRef = useRef<Animated.CompositeAnimation | null>(null);
 
   const delayDuration = Math.floor(totalDuration / numberOfDots - fadeInAnimDuration);
 
@@ -31,26 +33,48 @@ export const AnimatedDots: FC<Props> = ({ visible = false, numberOfDots, totalDu
       duration: fadeInAnimDuration,
     });
   };
-  const sequenceAnimations: Animated.CompositeAnimation[] = [];
-  times(numberOfDots).forEach((index) => {
-    sequenceAnimations.push(createDotAnimation(index));
-    sequenceAnimations.push(Animated.delay(delayDuration));
-  });
+
+  const createDotsAnimation = () => {
+    const sequenceAnimations: Animated.CompositeAnimation[] = [];
+    times(numberOfDots).forEach((index) => {
+      sequenceAnimations.push(createDotAnimation(index));
+      sequenceAnimations.push(Animated.delay(delayDuration));
+    });
+    return Animated.sequence(sequenceAnimations);
+  };
+
   const resetDotsAnimVals = () => dotAnimVals.forEach((val) => val.setValue(0));
-  const dotsAnimation = Animated.sequence(sequenceAnimations);
+
+  const startAnimation = () => {
+    if (animationRef.current) {
+      animationRef.current.stop();
+    }
+    resetDotsAnimVals();
+    animationRef.current = createDotsAnimation();
+    animationRef.current.start();
+  };
+
+  const stopAnimation = () => {
+    if (animationRef.current) {
+      animationRef.current.stop();
+      animationRef.current = null;
+    }
+  };
 
   useEffect(() => {
-    if (visible) {
-      dotsAnimation.start(resetDotsAnimVals);
+    if (visible && !isPaused) {
+      startAnimation();
+    } else {
+      stopAnimation();
     }
     return () => {
-      dotsAnimation.stop();
+      stopAnimation();
     };
-  }, []);
+  }, [visible, isPaused]);
 
   useOnUpdate((prevVisible) => {
-    if (!prevVisible && visible) {
-      dotsAnimation.start(resetDotsAnimVals);
+    if (!prevVisible && visible && !isPaused) {
+      startAnimation();
     }
   }, visible);
 

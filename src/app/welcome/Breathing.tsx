@@ -34,6 +34,11 @@ export default function Breathing({ navigation }: BreathingProps) {
 		(state) => state.breathing.exerciseTitle
 	);
 
+	// Debug: Track showUpdateRitualPanel state changes
+	useEffect(() => {
+		// console.log('[Breathing] showUpdateRitualPanel state changed to:', showUpdateRitualPanel);
+	}, [showUpdateRitualPanel]);
+
 	// Reset state when screen becomes focused after completion
 	useEffect(() => {
 		const prevIsFocused = prevIsFocusedRef.current;
@@ -144,7 +149,9 @@ export default function Breathing({ navigation }: BreathingProps) {
 					<PanelPlayerControls
 						isPaused={isPaused}
 						onTogglePlayPause={togglePause}
-						onOpenControls={() => setShowUpdateRitualPanel(true)}
+						onOpenControls={() => {
+							setShowUpdateRitualPanel(true);
+						}}
 					/>
 				)}
 
@@ -163,7 +170,9 @@ export default function Breathing({ navigation }: BreathingProps) {
 				visible={showUpdateRitualPanel}
 				selectionName={exerciseTitle}
 				handleSelectBreathingExercise={handleSelectBreathingExercise}
-				onClose={() => setShowUpdateRitualPanel(false)}
+				onClose={() => {
+					setShowUpdateRitualPanel(false);
+				}}
 			/>
 
 			{/* Breathing Exercise Selection Modal */}
