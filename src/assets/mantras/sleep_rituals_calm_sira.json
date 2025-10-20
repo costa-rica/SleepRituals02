@@ -1,0 +1,53 @@
+{
+  "mantraTheme": "Calm",
+  "voice": "Sira",
+  "audio": {
+    "duration": "00:30:00",
+    "sizeMB": 8.7,
+    "channels": "Stereo",
+    "sampleRateHz": 48000,
+    "bitsPerSample": 24
+  },
+  "lines": [
+    {
+      "start": "00:00:00",
+      "end": "00:01:03",
+      "text": "I am safe."
+    },
+    {
+      "start": "00:02:21",
+      "end": "00:04:20",
+      "text": "My body is soft and still."
+    },
+    {
+      "start": "00:06:20",
+      "end": "00:08:18",
+      "text": "My breath is slow and steady."
+    },
+    {
+      "start": "00:10:19",
+      "end": "00:12:18",
+      "text": "Tension melts as I exhale."
+    },
+    {
+      "start": "00:14:19",
+      "end": "00:16:11",
+      "text": "Quiet gathers around me."
+    },
+    {
+      "start": "00:18:13",
+      "end": "00:20:11",
+      "text": "Thoughts drift like clouds."
+    },
+    {
+      "start": "00:22:11",
+      "end": "00:24:10",
+      "text": "Peace fills this moment."
+    },
+    {
+      "start": "00:26:09",
+      "end": "00:28:03",
+      "text": "I rest in gentle calm."
+    }
+  ]
+}

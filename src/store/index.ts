@@ -20,3 +20,14 @@ export {
   updateShowBreatheInstructions,
 } from './features/breathing/breathingSlice';
 export type { BreathingState, BreatheExercise } from './features/breathing/breathingSlice';
+
+// Mantra slice
+export {
+  setMantraTheme,
+  setMantraVoice,
+  setSessionDuration,
+  setCurrentLineIndex,
+  incrementLoopCount,
+  resetMantraSession,
+} from './features/mantra/mantraSlice';
+export type { MantraState } from './features/mantra/mantraSlice';

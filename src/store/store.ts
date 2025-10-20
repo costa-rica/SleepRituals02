@@ -12,11 +12,13 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import soundReducer from './features/sound/soundSlice';
 import breathingReducer from './features/breathing/breathingSlice';
+import mantraReducer from './features/mantra/mantraSlice';
 
 // Combine all reducers
 const rootReducer = combineReducers({
   sound: soundReducer,
   breathing: breathingReducer,
+  mantra: mantraReducer,
 });
 
 // Redux persist configuration

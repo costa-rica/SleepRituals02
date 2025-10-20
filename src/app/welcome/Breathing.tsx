@@ -7,6 +7,7 @@ import { BreathlyExercise } from "../../components/breathly/BreathlyExercise";
 import PanelUpdateRitual from "../../components/panels/PanelUpdateRitual";
 import PanelPlayerControls from "../../components/panels/PanelPlayerControls";
 import ModalSelectBreathingExercise from "../../components/modals/ModalSelectBreathingExercise";
+import { ProgressTabs } from "../../components/ProgressTabs";
 import {
 	useAppSelector,
 	useAppDispatch,
@@ -129,19 +130,9 @@ export default function Breathing({ navigation }: BreathingProps) {
 					/>
 				)}
 
-				{/* Cycle progress bars */}
+				{/* Cycle progress tabs */}
 				{showControls && (
-					<View style={styles.progressContainer}>
-						{[...Array(TOTAL_CYCLES)].map((_, index) => (
-							<View
-								key={index}
-								style={[
-									styles.progressBar,
-									index === cycleCount && styles.progressBarActive,
-								]}
-							/>
-						))}
-					</View>
+					<ProgressTabs total={TOTAL_CYCLES} current={cycleCount} />
 				)}
 
 				{/* Control buttons */}
@@ -189,24 +180,6 @@ export default function Breathing({ navigation }: BreathingProps) {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-	},
-	progressContainer: {
-		position: "absolute",
-		top: 32,
-		left: 40,
-		right: 40,
-		flexDirection: "row",
-		justifyContent: "space-between",
-		gap: 12,
-	},
-	progressBar: {
-		flex: 1,
-		height: 4,
-		backgroundColor: "rgba(255, 255, 255, 0.3)",
-		borderRadius: 2,
-	},
-	progressBarActive: {
-		backgroundColor: "#FFFFFF",
 	},
 	introContainer: {
 		position: "absolute",
