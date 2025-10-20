@@ -4,7 +4,6 @@ import {
 	StyleSheet,
 	Animated,
 	Pressable,
-	Alert,
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import { useIsFocused } from "@react-navigation/native";
@@ -18,12 +17,15 @@ import {
 	ControlsButtonIcon,
 } from "../../components/breathing/BreathingIcons";
 import SlideUpLayoutUpdateRitual from "../../components/panels/SlideUpLayoutUpdateRitual";
-import { useAppSelector } from "../../store";
+import ModalSelectBreathingExercise from "../../components/modals/ModalSelectBreathingExercise";
+import { useAppSelector, useAppDispatch, updateBreatheExercise } from "../../store";
+import type { BreatheExercise } from "../../store";
 const INTRO_DURATION = 4000; // 4 seconds
 const TOTAL_CYCLES = 4;
 
 export default function Breathing({ navigation }: BreathingProps) {
 	const isFocused = useIsFocused();
+	const dispatch = useAppDispatch();
 
 	const [isActive, setIsActive] = useState(false);
 	const [showIntro, setShowIntro] = useState(true);
@@ -32,6 +34,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 	const [isPaused, setIsPaused] = useState(false);
 	const [hasCompleted, setHasCompleted] = useState(false);
 	const [showUpdateRitualPanel, setShowUpdateRitualPanel] = useState(false);
+	const [showExerciseModal, setShowExerciseModal] = useState(false);
 	const introOpacity = useRef(new Animated.Value(0)).current;
 	const prevIsFocusedRef = useRef(isFocused);
 	const exerciseTitle = useAppSelector(
@@ -109,7 +112,11 @@ export default function Breathing({ navigation }: BreathingProps) {
 	};
 
 	const handleSelectBreathingExercise = () => {
-		Alert.alert("Panel Selector", `${exerciseTitle}`);
+		setShowExerciseModal(true);
+	};
+
+	const handleExerciseSelect = (exercise: BreatheExercise) => {
+		dispatch(updateBreatheExercise(exercise));
 	};
 
 	return (
@@ -200,6 +207,14 @@ export default function Breathing({ navigation }: BreathingProps) {
 				selectionName={exerciseTitle}
 				handleSelectBreathingExercise={handleSelectBreathingExercise}
 				onClose={() => setShowUpdateRitualPanel(false)}
+			/>
+
+			{/* Breathing Exercise Selection Modal */}
+			<ModalSelectBreathingExercise
+				visible={showExerciseModal}
+				currentSelection={exerciseTitle}
+				onSelect={handleExerciseSelect}
+				onClose={() => setShowExerciseModal(false)}
 			/>
 		</ScreenFrame>
 	);
