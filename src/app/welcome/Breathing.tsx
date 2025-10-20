@@ -30,13 +30,25 @@ export default function Breathing({ navigation }: BreathingProps) {
 	const [showExerciseModal, setShowExerciseModal] = useState(false);
 	const introOpacity = useRef(new Animated.Value(0)).current;
 	const prevIsFocusedRef = useRef(isFocused);
+	const wasPausedBeforePanelRef = useRef(false);
 	const exerciseTitle = useAppSelector(
 		(state) => state.breathing.exerciseTitle
 	);
+	const breatheIn = useAppSelector((state) => state.breathing.breatheIn);
+	const holdIn = useAppSelector((state) => state.breathing.holdIn);
+	const breatheOut = useAppSelector((state) => state.breathing.breatheOut);
+	const holdOut = useAppSelector((state) => state.breathing.holdOut);
 
-	// Debug: Track showUpdateRitualPanel state changes
+	// Pause breathing when panel opens, resume when it closes
 	useEffect(() => {
-		// console.log('[Breathing] showUpdateRitualPanel state changed to:', showUpdateRitualPanel);
+		if (showUpdateRitualPanel) {
+			// Panel opening - save current pause state and pause breathing
+			wasPausedBeforePanelRef.current = isPaused;
+			setIsPaused(true);
+		} else {
+			// Panel closing - restore previous pause state
+			setIsPaused(wasPausedBeforePanelRef.current);
+		}
 	}, [showUpdateRitualPanel]);
 
 	// Reset state when screen becomes focused after completion
@@ -81,6 +93,50 @@ export default function Breathing({ navigation }: BreathingProps) {
 
 		return () => clearTimeout(timer);
 	}, [isFocused, hasCompleted]);
+
+	// Reset exercise when breathing pattern changes
+	const isFirstRenderRef = useRef(true);
+	useEffect(() => {
+		// Skip reset on initial mount
+		if (isFirstRenderRef.current) {
+			isFirstRenderRef.current = false;
+			return;
+		}
+
+		// When breathing pattern changes, restart the exercise
+		setCycleCount(0);
+		setHasCompleted(false);
+		setShowIntro(true);
+		setIsPaused(false);
+		setShowControls(false);
+		setShowUpdateRitualPanel(false);
+		setShowExerciseModal(false);
+
+		// Manually trigger intro animation sequence
+		introOpacity.setValue(0);
+
+		// Fade in intro text
+		Animated.timing(introOpacity, {
+			toValue: 1,
+			duration: 1000,
+			useNativeDriver: true,
+		}).start();
+
+		// Wait 4 seconds then start breathing
+		const timer = setTimeout(() => {
+			// Fade out intro text
+			Animated.timing(introOpacity, {
+				toValue: 0,
+				duration: 1000,
+				useNativeDriver: true,
+			}).start(() => {
+				setShowIntro(false);
+			});
+			setIsActive(true);
+		}, INTRO_DURATION);
+
+		return () => clearTimeout(timer);
+	}, [breatheIn, holdIn, breatheOut, holdOut]);
 
 	// Handle cycle completion
 	const handleCycleComplete = () => {
