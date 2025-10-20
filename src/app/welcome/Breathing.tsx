@@ -14,7 +14,6 @@ import {
 } from "../../store";
 import type { BreatheExercise } from "../../store";
 const INTRO_DURATION = 4000; // 4 seconds
-const TOTAL_CYCLES = 4;
 
 export default function Breathing({ navigation }: BreathingProps) {
 	const isFocused = useIsFocused();
@@ -38,6 +37,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 	const holdIn = useAppSelector((state) => state.breathing.holdIn);
 	const breatheOut = useAppSelector((state) => state.breathing.breatheOut);
 	const holdOut = useAppSelector((state) => state.breathing.holdOut);
+	const totalCycles = useAppSelector((state) => state.breathing.cycles);
 
 	// Pause breathing when panel opens, resume when it closes
 	useEffect(() => {
@@ -143,7 +143,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 		setCycleCount((prevCount) => {
 			const newCycleCount = prevCount + 1;
 
-			if (newCycleCount >= TOTAL_CYCLES) {
+			if (newCycleCount >= totalCycles) {
 				setHasCompleted(true);
 				// Only navigate to Mantra screen if this screen is currently visible
 				if (isFocused) {
@@ -188,7 +188,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 				{/* Cycle progress bars */}
 				{showControls && (
 					<View style={styles.progressContainer}>
-						{[...Array(TOTAL_CYCLES)].map((_, index) => (
+						{[...Array(totalCycles)].map((_, index) => (
 							<View
 								key={index}
 								style={[

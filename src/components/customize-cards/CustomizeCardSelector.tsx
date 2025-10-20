@@ -12,13 +12,6 @@ const CustomizeCardSelector: React.FC<CustomizeCardSelectorProps> = ({
 	panelSelectorSelection,
 	handlePress,
 }) => {
-	// const handlePress = () => {
-	// 	Alert.alert(
-	// 		"Panel Selector",
-	// 		`${panelSelectorTitle}: ${panelSelectorSelection}`
-	// 	);
-	// };
-
 	return (
 		<View style={styles.container}>
 			<Text style={styles.title}>{panelSelectorTitle}</Text>

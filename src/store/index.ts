@@ -17,6 +17,7 @@ export type { SoundState } from './features/sound/soundSlice';
 // Breathing slice
 export {
   updateBreatheExercise,
+  updateCycles,
   updateShowBreatheInstructions,
 } from './features/breathing/breathingSlice';
 export type { BreathingState, BreatheExercise } from './features/breathing/breathingSlice';

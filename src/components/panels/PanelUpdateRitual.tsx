@@ -8,6 +8,8 @@ import {
 	Dimensions,
 } from "react-native";
 import CustomizeCardSelector from "../customize-cards/CustomizeCardSelector";
+import CustomizeCardPlusMinus from "../customize-cards/CustomizeCardPlusMinus";
+import { useAppSelector, useAppDispatch, updateCycles } from "../../store";
 
 interface PanelUpdateRitualProps {
 	visible: boolean;
@@ -24,6 +26,13 @@ const PanelUpdateRitual: React.FC<PanelUpdateRitualProps> = ({
 	selectionName,
 	handleSelectBreathingExercise,
 }) => {
+	const dispatch = useAppDispatch();
+	const cycles = useAppSelector((state) => state.breathing.cycles);
+	const breatheIn = useAppSelector((state) => state.breathing.breatheIn);
+	const holdIn = useAppSelector((state) => state.breathing.holdIn);
+	const breatheOut = useAppSelector((state) => state.breathing.breatheOut);
+	const holdOut = useAppSelector((state) => state.breathing.holdOut);
+
 	const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
 	const [shouldRender, setShouldRender] = React.useState(false);
 
@@ -58,6 +67,23 @@ const PanelUpdateRitual: React.FC<PanelUpdateRitualProps> = ({
 		onClose();
 	};
 
+	const handleIncrementCycles = () => {
+		dispatch(updateCycles(cycles + 1));
+	};
+
+	const handleDecrementCycles = () => {
+		dispatch(updateCycles(cycles - 1));
+	};
+
+	const formatCyclesValue = (value: number) => {
+		// Calculate total duration in seconds
+		const secondsPerCycle = breatheIn + holdIn + breatheOut + holdOut;
+		const totalSeconds = secondsPerCycle * value;
+		const totalMinutes = Math.round(totalSeconds / 60);
+
+		return `${value} cycles (~${totalMinutes}m)`;
+	};
+
 	return (
 		<Animated.View
 			style={[
@@ -77,6 +103,15 @@ const PanelUpdateRitual: React.FC<PanelUpdateRitualProps> = ({
 						panelSelectorTitle="Type"
 						panelSelectorSelection={selectionName}
 						handlePress={handleSelectBreathingExercise}
+					/>
+					<CustomizeCardPlusMinus
+						panelSelectorTitle="Duration"
+						value={cycles}
+						onIncrement={handleIncrementCycles}
+						onDecrement={handleDecrementCycles}
+						formatValue={formatCyclesValue}
+						minValue={1}
+						maxValue={10}
 					/>
 				</View>
 

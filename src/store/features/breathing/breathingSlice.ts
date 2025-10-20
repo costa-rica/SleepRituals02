@@ -16,6 +16,7 @@ export interface BreathingState {
 	holdIn: number;
 	breatheOut: number;
 	holdOut: number;
+	cycles: number;
 	showInstructions: boolean;
 }
 
@@ -27,6 +28,7 @@ const initialState: BreathingState = {
 	holdIn: 4,
 	breatheOut: 4,
 	holdOut: 4,
+	cycles: 4,
 	showInstructions: true,
 };
 
@@ -42,13 +44,16 @@ const breathingSlice = createSlice({
 			state.breatheOut = action.payload.breatheOut;
 			state.holdOut = action.payload.holdOut;
 		},
+		updateCycles: (state, action: PayloadAction<number>) => {
+			state.cycles = action.payload;
+		},
 		updateShowBreatheInstructions: (state, action: PayloadAction<boolean>) => {
 			state.showInstructions = action.payload;
 		},
 	},
 });
 
-export const { updateBreatheExercise, updateShowBreatheInstructions } =
+export const { updateBreatheExercise, updateCycles, updateShowBreatheInstructions } =
 	breathingSlice.actions;
 
 export default breathingSlice.reducer;

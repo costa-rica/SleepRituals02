@@ -23,9 +23,9 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  version: 2, // Incremented to invalidate old cached state
+  version: 3, // Incremented to handle cycles field addition
   migrate: (state: any) => {
-    // If migrating from version 1 to 2, ensure breathing state has new fields
+    // Migration to ensure breathing state has all required fields
     if (state && state.breathing) {
       return Promise.resolve({
         ...state,
@@ -33,6 +33,7 @@ const persistConfig = {
           ...state.breathing,
           exerciseTitle: state.breathing.exerciseTitle || 'Box 4-4-4-4',
           exerciseDescription: state.breathing.exerciseDescription || 'Inhale, hold, exhale, and hold for four counts each to calm your body and mind.',
+          cycles: state.breathing.cycles || 4, // Default to 4 cycles
         },
       });
     }
