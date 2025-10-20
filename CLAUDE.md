@@ -123,6 +123,46 @@ dispatch(
 
 - `src/constants/breathingExercises.ts` - Breathing exercise options
 
+### Panels and Customize Cards
+
+**Panels architecture** (`src/components/panels/`):
+
+The panels directory contains reusable slide-up layouts and control components that provide user interaction interfaces:
+
+- **Purpose**: Houses slide-up panels, player controls, and other interactive layouts
+- **Examples**:
+  - `PanelUpdateRitual.tsx` - Slide-up panel for updating ritual settings
+  - `PanelPlayerControls.tsx` - Reusable player control buttons (play/pause, customize audio, settings)
+
+**Customize Cards architecture** (`src/components/customize-cards/`):
+
+Customize cards are standardized, reusable UI components for user preference selection. These cards provide consistent interfaces for adjusting app settings:
+
+- **CustomizeCardSelector** (`CustomizeCardSelector.tsx`) - Selection interface for choosing between predefined options (e.g., breathing exercises)
+- **CustomizeCardSlider** (planned) - Slider control for adjusting voice and music settings
+- **CustomizeCardPlusMinus** (planned) - Plus/minus buttons for incrementing/decrementing values (e.g., duration)
+
+**Integration with Redux state**:
+
+User selections made through customize cards persist in Redux reducers:
+
+- **Breathing settings** (`src/store/features/breathing/breathingSlice.ts`):
+  - Exercise title and description
+  - Timing patterns
+  - Show instructions preference
+
+- **Sound settings** (`src/store/features/sound/soundSlice.ts`):
+  - Narrator voice selection and volume
+  - Music name and volume
+  - Other audio-related parameters
+
+**Usage pattern**:
+
+1. User interacts with customize cards in panels
+2. Selection callbacks dispatch Redux actions
+3. State updates persist via redux-persist
+4. UI reflects updated preferences from Redux store
+
 ### Design Reference
 
 Figma design screenshots are in `docs/Figma/`:
