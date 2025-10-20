@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, Animated, Pressable } from "react-native";
+import {
+	View,
+	Text,
+	StyleSheet,
+	Animated,
+	Pressable,
+	Alert,
+} from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import type { BreathingProps } from "../../types/navigation";
@@ -11,7 +18,7 @@ import {
 	ControlsButtonIcon,
 } from "../../components/breathing/BreathingIcons";
 import SlideUpLayoutUpdateRitual from "../../components/panels/SlideUpLayoutUpdateRitual";
-
+import { useAppSelector } from "../../store";
 const INTRO_DURATION = 4000; // 4 seconds
 const TOTAL_CYCLES = 4;
 
@@ -27,6 +34,9 @@ export default function Breathing({ navigation }: BreathingProps) {
 	const [showUpdateRitualPanel, setShowUpdateRitualPanel] = useState(false);
 	const introOpacity = useRef(new Animated.Value(0)).current;
 	const prevIsFocusedRef = useRef(isFocused);
+	const exerciseTitle = useAppSelector(
+		(state) => state.breathing.exerciseTitle
+	);
 
 	// Reset state when screen becomes focused after completion
 	useEffect(() => {
@@ -96,6 +106,10 @@ export default function Breathing({ navigation }: BreathingProps) {
 	// Toggle pause/play
 	const togglePause = () => {
 		setIsPaused((prev) => !prev);
+	};
+
+	const handleSelectBreathingExercise = () => {
+		Alert.alert("Panel Selector", `${exerciseTitle}`);
 	};
 
 	return (
@@ -183,6 +197,8 @@ export default function Breathing({ navigation }: BreathingProps) {
 			{/* Update Ritual Panel */}
 			<SlideUpLayoutUpdateRitual
 				visible={showUpdateRitualPanel}
+				selectionName={exerciseTitle}
+				handleSelectBreathingExercise={handleSelectBreathingExercise}
 				onClose={() => setShowUpdateRitualPanel(false)}
 			/>
 		</ScreenFrame>

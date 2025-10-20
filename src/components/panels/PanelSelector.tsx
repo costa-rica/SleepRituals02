@@ -4,18 +4,20 @@ import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
 interface PanelSelectorProps {
 	panelSelectorTitle: string;
 	panelSelectorSelection: string;
+	handlePress: () => void;
 }
 
 const PanelSelector: React.FC<PanelSelectorProps> = ({
 	panelSelectorTitle,
 	panelSelectorSelection,
+	handlePress,
 }) => {
-	const handlePress = () => {
-		Alert.alert(
-			"Panel Selector",
-			`${panelSelectorTitle}: ${panelSelectorSelection}`
-		);
-	};
+	// const handlePress = () => {
+	// 	Alert.alert(
+	// 		"Panel Selector",
+	// 		`${panelSelectorTitle}: ${panelSelectorSelection}`
+	// 	);
+	// };
 
 	return (
 		<View style={styles.container}>
@@ -30,6 +32,12 @@ const PanelSelector: React.FC<PanelSelectorProps> = ({
 const styles = StyleSheet.create({
 	container: {
 		marginBottom: 24,
+		borderRadius: 16,
+		borderWidth: 1,
+		borderColor: "#312A43",
+		backgroundColor: "#1E182E",
+		opacity: 0.5,
+		padding: 16,
 	},
 	title: {
 		fontSize: 14,

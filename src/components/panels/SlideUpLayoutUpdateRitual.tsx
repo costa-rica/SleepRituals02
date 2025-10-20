@@ -8,11 +8,12 @@ import {
 	Dimensions,
 } from "react-native";
 import PanelSelector from "./PanelSelector";
-import { useAppSelector } from "../../store";
 
 interface SlideUpLayoutUpdateRitualProps {
 	visible: boolean;
 	onClose: () => void;
+	selectionName: string;
+	handleSelectBreathingExercise: () => void;
 }
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -20,12 +21,11 @@ const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const SlideUpLayoutUpdateRitual: React.FC<SlideUpLayoutUpdateRitualProps> = ({
 	visible,
 	onClose,
+	selectionName,
+	handleSelectBreathingExercise,
 }) => {
 	const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
 	const [shouldRender, setShouldRender] = React.useState(false);
-	const exerciseTitle = useAppSelector(
-		(state) => state.breathing.exerciseTitle
-	);
 
 	useEffect(() => {
 		if (visible) {
@@ -75,7 +75,8 @@ const SlideUpLayoutUpdateRitual: React.FC<SlideUpLayoutUpdateRitualProps> = ({
 				<View style={styles.content}>
 					<PanelSelector
 						panelSelectorTitle="Type"
-						panelSelectorSelection={exerciseTitle}
+						panelSelectorSelection={selectionName}
+						handlePress={handleSelectBreathingExercise}
 					/>
 				</View>
 
