@@ -4,13 +4,8 @@ import { useIsFocused } from "@react-navigation/native";
 import type { BreathingProps } from "../../types/navigation";
 import ScreenFrame from "../../components/ScreenFrame";
 import { BreathlyExercise } from "../../components/breathly/BreathlyExercise";
-import {
-	CustomizeAudioIcon,
-	PauseButtonIcon,
-	PlayButtonIcon,
-	ControlsButtonIcon,
-} from "../../components/breathing/BreathingIcons";
 import PanelUpdateRitual from "../../components/panels/PanelUpdateRitual";
+import PanelPlayerControls from "../../components/panels/PanelPlayerControls";
 import ModalSelectBreathingExercise from "../../components/modals/ModalSelectBreathingExercise";
 import {
 	useAppSelector,
@@ -146,47 +141,11 @@ export default function Breathing({ navigation }: BreathingProps) {
 
 				{/* Control buttons */}
 				{showControls && (
-					<View style={styles.controlsContainer}>
-						<Pressable
-							style={styles.controlButton}
-							onPress={(e) => {
-								e.stopPropagation();
-								// Audio customize action (placeholder)
-							}}
-						>
-							<View style={styles.buttonCircle}>
-								<CustomizeAudioIcon width={30} height={30} />
-							</View>
-						</Pressable>
-
-						<Pressable
-							style={styles.controlButtonLarge}
-							onPress={(e) => {
-								e.stopPropagation();
-								togglePause();
-							}}
-						>
-							<View style={styles.buttonCircleLarge}>
-								{isPaused ? (
-									<PlayButtonIcon width={50} height={58} color="#E5D6F5" />
-								) : (
-									<PauseButtonIcon width={50} height={58} />
-								)}
-							</View>
-						</Pressable>
-
-						<Pressable
-							style={styles.controlButton}
-							onPress={(e) => {
-								e.stopPropagation();
-								setShowUpdateRitualPanel(true);
-							}}
-						>
-							<View style={styles.buttonCircle}>
-								<ControlsButtonIcon width={32} height={30} />
-							</View>
-						</Pressable>
-					</View>
+					<PanelPlayerControls
+						isPaused={isPaused}
+						onTogglePlayPause={togglePause}
+						onOpenControls={() => setShowUpdateRitualPanel(true)}
+					/>
 				)}
 
 				{/* Intro text */}
@@ -239,45 +198,6 @@ const styles = StyleSheet.create({
 	},
 	progressBarActive: {
 		backgroundColor: "#FFFFFF",
-	},
-	controlsContainer: {
-		position: "absolute",
-		bottom: 48,
-		left: 40,
-		right: 40,
-		flexDirection: "row",
-		justifyContent: "space-between",
-		alignItems: "center",
-	},
-	controlButton: {
-		width: 60,
-		height: 60,
-		justifyContent: "center",
-		alignItems: "center",
-	},
-	controlButtonLarge: {
-		width: 120,
-		height: 120,
-		justifyContent: "center",
-		alignItems: "center",
-	},
-	buttonCircle: {
-		width: 60,
-		height: 60,
-		borderRadius: 30,
-		borderWidth: 2,
-		borderColor: "rgba(255, 255, 255, 0.3)",
-		justifyContent: "center",
-		alignItems: "center",
-	},
-	buttonCircleLarge: {
-		width: 120,
-		height: 120,
-		borderRadius: 60,
-		borderWidth: 2,
-		borderColor: "rgba(255, 255, 255, 0.3)",
-		justifyContent: "center",
-		alignItems: "center",
 	},
 	introContainer: {
 		position: "absolute",
