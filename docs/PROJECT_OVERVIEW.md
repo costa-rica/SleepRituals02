@@ -38,6 +38,7 @@ src/
 │   ├── breathing/           # Breathing-specific components
 │   ├── breathly/            # Breathing animation logic
 │   └── panels/              # Slide-up panel components
+├── constants/               # Constants for breathing exercises and other menu options
 ├── store/
 │   ├── features/
 │   │   ├── sound/

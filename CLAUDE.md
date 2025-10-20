@@ -94,18 +94,34 @@ Screens are organized by feature area:
 - **Exports**: `src/store/index.ts` - Barrel exports for clean imports
 
 **Redux persistence**:
+
 - All state is persisted to AsyncStorage automatically
 - Version-based migrations handle state shape changes
 - Increment `version` in persist config when adding/removing state fields
 
 **Usage example**:
+
 ```typescript
-import { useAppSelector, useAppDispatch, updateBreatheExercise } from '../store';
+import {
+	useAppSelector,
+	useAppDispatch,
+	updateBreatheExercise,
+} from "../store";
 
 const exerciseTitle = useAppSelector((state) => state.breathing.exerciseTitle);
 const dispatch = useAppDispatch();
-dispatch(updateBreatheExercise({ /* ... */ }));
+dispatch(
+	updateBreatheExercise({
+		/* ... */
+	})
+);
 ```
+
+### Constants
+
+**Constants** should be stored in the `src/constants/` directory:
+
+- `src/constants/breathingExercises.ts` - Breathing exercise options
 
 ### Design Reference
 
