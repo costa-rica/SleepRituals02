@@ -7,9 +7,9 @@ import {
 	Pressable,
 	Dimensions,
 } from "react-native";
-import PanelSelector from "./PanelSelector";
+import CustomizeCardSelector from "../customize-cards/CustomizeCardSelector";
 
-interface SlideUpLayoutUpdateRitualProps {
+interface PanelUpdateRitualProps {
 	visible: boolean;
 	onClose: () => void;
 	selectionName: string;
@@ -18,7 +18,7 @@ interface SlideUpLayoutUpdateRitualProps {
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-const SlideUpLayoutUpdateRitual: React.FC<SlideUpLayoutUpdateRitualProps> = ({
+const PanelUpdateRitual: React.FC<PanelUpdateRitualProps> = ({
 	visible,
 	onClose,
 	selectionName,
@@ -73,7 +73,7 @@ const SlideUpLayoutUpdateRitual: React.FC<SlideUpLayoutUpdateRitualProps> = ({
 
 				{/* Content area */}
 				<View style={styles.content}>
-					<PanelSelector
+					<CustomizeCardSelector
 						panelSelectorTitle="Type"
 						panelSelectorSelection={selectionName}
 						handlePress={handleSelectBreathingExercise}
@@ -129,4 +129,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default SlideUpLayoutUpdateRitual;
+export default PanelUpdateRitual;

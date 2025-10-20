@@ -1,10 +1,4 @@
-import {
-	View,
-	Text,
-	StyleSheet,
-	Animated,
-	Pressable,
-} from "react-native";
+import { View, Text, StyleSheet, Animated, Pressable } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import type { BreathingProps } from "../../types/navigation";
@@ -16,9 +10,13 @@ import {
 	PlayButtonIcon,
 	ControlsButtonIcon,
 } from "../../components/breathing/BreathingIcons";
-import SlideUpLayoutUpdateRitual from "../../components/panels/SlideUpLayoutUpdateRitual";
+import PanelUpdateRitual from "../../components/panels/PanelUpdateRitual";
 import ModalSelectBreathingExercise from "../../components/modals/ModalSelectBreathingExercise";
-import { useAppSelector, useAppDispatch, updateBreatheExercise } from "../../store";
+import {
+	useAppSelector,
+	useAppDispatch,
+	updateBreatheExercise,
+} from "../../store";
 import type { BreatheExercise } from "../../store";
 const INTRO_DURATION = 4000; // 4 seconds
 const TOTAL_CYCLES = 4;
@@ -202,7 +200,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 			</Pressable>
 
 			{/* Update Ritual Panel */}
-			<SlideUpLayoutUpdateRitual
+			<PanelUpdateRitual
 				visible={showUpdateRitualPanel}
 				selectionName={exerciseTitle}
 				handleSelectBreathingExercise={handleSelectBreathingExercise}

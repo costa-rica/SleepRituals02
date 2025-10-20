@@ -1,13 +1,13 @@
 import React from "react";
 import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
 
-interface PanelSelectorProps {
+interface CustomizeCardSelectorProps {
 	panelSelectorTitle: string;
 	panelSelectorSelection: string;
 	handlePress: () => void;
 }
 
-const PanelSelector: React.FC<PanelSelectorProps> = ({
+const CustomizeCardSelector: React.FC<CustomizeCardSelectorProps> = ({
 	panelSelectorTitle,
 	panelSelectorSelection,
 	handlePress,
@@ -55,4 +55,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default PanelSelector;
+export default CustomizeCardSelector;
