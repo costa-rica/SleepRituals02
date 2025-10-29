@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Sleep Rituals is a React Native mobile app designed to prime users for sleep and the next day. The app has three key components:
 
 1. **Journal (Good Times)**: Users respond to "What are some things that made you happy today?" - must enter at least one item before advancing
-2. **Breathing Exercise**: Guided breathing using subtle animations
+2. **Breathing Exercise**: Guided breathing using subtle animations with voice narration. Users can select from five narrators (Carla, Michael, Sira, Walter, Frederick), and audio prompts play synchronized with each breathing phase (inhale, exhale, hold).
 3. **Mantra Meditation**: Plays mantra audio files (.mp4) while user sleeps
 
 Journal entries persist using Redux store (future versions may use a database).
@@ -122,6 +122,20 @@ dispatch(
 **Constants** should be stored in the `src/constants/` directory:
 
 - `src/constants/breathingExercises.ts` - Breathing exercise options
+
+### Audio Assets
+
+**Voice narration** for breathing exercises (`src/assets/audio/breathing/`):
+
+- Audio files are organized by narrator name in lowercase (carla, michael, sira, walter, frederick)
+- Each narrator folder contains three files: `inhale.mp3`, `exhale.mp3`, `hold.mp3`
+- Files map to BreathlyExercise step IDs via `src/utils/breathingAudio.ts`:
+  - `inhale` step → `inhale.mp3`
+  - `afterInhale` step → `hold.mp3`
+  - `exhale` step → `exhale.mp3`
+  - `afterExhale` step → `hold.mp3`
+- Audio plays once at the start of each breathing phase, synchronized with step changes
+- All audio files generated from ElevenLabs (see `docs/VOICE_RECORDINGS.md` for voice parameters)
 
 ### Panels and Customize Cards
 
