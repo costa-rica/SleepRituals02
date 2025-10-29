@@ -1,14 +1,16 @@
 /**
  * Main Breathly exercise component that combines all breathing animation parts
  */
-import React, { FC } from 'react';
+import React, { FC, useEffect, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
+import { Audio } from 'expo-av';
 import { BreathingAnimation } from './breathing-animation';
 import { StepDescription } from './step-description';
 import { AnimatedDots } from './animated-dots';
 import { useExerciseLoop } from './use-exercise-loop';
 import { StepMetadata } from './types';
 import { useAppSelector } from '../../store';
+import { getBreathingAudioSource } from '../../utils/breathingAudio';
 
 interface Props {
   color?: string;
@@ -26,6 +28,13 @@ export const BreathlyExercise: FC<Props> = ({
   const holdIn = useAppSelector((state) => state.breathing.holdIn);
   const breatheOut = useAppSelector((state) => state.breathing.breatheOut);
   const holdOut = useAppSelector((state) => state.breathing.holdOut);
+
+  // Get narrator voice and volume from Redux state
+  const narratorVoiceName = useAppSelector((state) => state.sound.narratorVoiceName);
+  const narratorVoiceVolume = useAppSelector((state) => state.sound.narratorVoiceVolume);
+
+  // Reference to current sound object
+  const soundRef = useRef<Audio.Sound | null>(null);
 
   // Create step metadata from Redux values (convert seconds to milliseconds)
   const stepsMetadata: [StepMetadata, StepMetadata, StepMetadata, StepMetadata] = [
@@ -65,6 +74,59 @@ export const BreathlyExercise: FC<Props> = ({
     isPaused,
     onCycleComplete
   );
+
+  // Play audio when step changes
+  useEffect(() => {
+    const playStepAudio = async () => {
+      // Don't play audio if paused or no current step
+      if (isPaused || !currentStep) {
+        return;
+      }
+
+      // Don't play audio for steps with duration 0
+      if (currentStep.duration === 0) {
+        return;
+      }
+
+      try {
+        // Unload any previous sound
+        if (soundRef.current) {
+          await soundRef.current.unloadAsync();
+          soundRef.current = null;
+        }
+
+        // Get the audio source for this step and narrator
+        const audioSource = getBreathingAudioSource(narratorVoiceName, currentStep.id);
+
+        if (!audioSource) {
+          console.warn(`No audio found for narrator: ${narratorVoiceName}, step: ${currentStep.id}`);
+          return;
+        }
+
+        // Create and play the sound
+        const { sound } = await Audio.Sound.createAsync(audioSource);
+        soundRef.current = sound;
+
+        // Set volume (convert 0-100 to 0-1)
+        await sound.setVolumeAsync(narratorVoiceVolume / 100);
+
+        // Play the sound
+        await sound.playAsync();
+      } catch (error) {
+        console.error('Error playing breathing audio:', error);
+      }
+    };
+
+    playStepAudio();
+
+    // Cleanup function to unload sound when component unmounts
+    return () => {
+      if (soundRef.current) {
+        soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+    };
+  }, [currentStep?.id, isPaused, narratorVoiceName, narratorVoiceVolume]);
 
   return (
     <View style={styles.container}>

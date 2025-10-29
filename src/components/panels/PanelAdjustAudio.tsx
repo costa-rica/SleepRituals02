@@ -9,6 +9,7 @@ import {
 	Alert,
 } from "react-native";
 import CustomizeCardSelectorSlider from "../customize-cards/CustomizeCardSelectorSlider";
+import ModalSelectNarrator from "../modals/ModalSelectNarrator";
 import {
 	useAppSelector,
 	useAppDispatch,
@@ -39,6 +40,7 @@ const PanelAdjustAudio: React.FC<PanelAdjustAudioProps> = ({
 
 	const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
 	const [shouldRender, setShouldRender] = React.useState(false);
+	const [showNarratorModal, setShowNarratorModal] = React.useState(false);
 
 	useEffect(() => {
 		if (visible) {
@@ -68,10 +70,7 @@ const PanelAdjustAudio: React.FC<PanelAdjustAudioProps> = ({
 	}
 
 	const handleVoicePress = () => {
-		Alert.alert(
-			"Voice Selection",
-			"Modal to select narrator voice will appear here"
-		);
+		setShowNarratorModal(true);
 	};
 
 	const handleMusicPress = () => {
@@ -90,42 +89,50 @@ const PanelAdjustAudio: React.FC<PanelAdjustAudioProps> = ({
 	};
 
 	return (
-		<Animated.View
-			style={[
-				styles.container,
-				{
-					transform: [{ translateY }],
-				},
-			]}
-		>
-			<View style={styles.panel}>
-				{/* Title */}
-				<Text style={styles.title}>Adjust Audio</Text>
+		<>
+			<Animated.View
+				style={[
+					styles.container,
+					{
+						transform: [{ translateY }],
+					},
+				]}
+			>
+				<View style={styles.panel}>
+					{/* Title */}
+					<Text style={styles.title}>Adjust Audio</Text>
 
-				{/* Content area */}
-				<View style={styles.content}>
-					<CustomizeCardSelectorSlider
-						title="Voice"
-						selection={narratorVoiceName}
-						volume={narratorVoiceVolume}
-						onPress={handleVoicePress}
-						onVolumeChange={handleVoiceVolumeChange}
-					/>
-					<CustomizeCardSelectorSlider
-						title="Music"
-						selection={musicName}
-						volume={musicVolume}
-						onPress={handleMusicPress}
-						onVolumeChange={handleMusicVolumeChange}
-					/>
+					{/* Content area */}
+					<View style={styles.content}>
+						<CustomizeCardSelectorSlider
+							title="Voice"
+							selection={narratorVoiceName}
+							volume={narratorVoiceVolume}
+							onPress={handleVoicePress}
+							onVolumeChange={handleVoiceVolumeChange}
+						/>
+						<CustomizeCardSelectorSlider
+							title="Music"
+							selection={musicName}
+							volume={musicVolume}
+							onPress={handleMusicPress}
+							onVolumeChange={handleMusicVolumeChange}
+						/>
+					</View>
+
+					{/* Close Button */}
+					<Pressable style={styles.closeButton} onPress={onClose}>
+						<Text style={styles.closeButtonText}>Close</Text>
+					</Pressable>
 				</View>
+			</Animated.View>
 
-				{/* Close Button */}
-				<Pressable style={styles.closeButton} onPress={onClose}>
-					<Text style={styles.closeButtonText}>Close</Text>
-				</Pressable>
-			</View>
-		</Animated.View>
+			<ModalSelectNarrator
+				visible={showNarratorModal}
+				onClose={() => setShowNarratorModal(false)}
+				currentNarrator={narratorVoiceName}
+			/>
+		</>
 	);
 };
 
