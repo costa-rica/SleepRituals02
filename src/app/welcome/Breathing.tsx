@@ -5,6 +5,7 @@ import type { BreathingProps } from "../../types/navigation";
 import ScreenFrame from "../../components/ScreenFrame";
 import { BreathlyExercise } from "../../components/breathly/BreathlyExercise";
 import PanelUpdateRitual from "../../components/panels/PanelUpdateRitual";
+import PanelAdjustAudio from "../../components/panels/PanelAdjustAudio";
 import PanelPlayerControls from "../../components/panels/PanelPlayerControls";
 import ModalSelectBreathingExercise from "../../components/modals/ModalSelectBreathingExercise";
 import { ProgressTabs } from "../../components/ProgressTabs";
@@ -27,6 +28,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 	const [isPaused, setIsPaused] = useState(false);
 	const [hasCompleted, setHasCompleted] = useState(false);
 	const [showUpdateRitualPanel, setShowUpdateRitualPanel] = useState(false);
+	const [showAdjustAudioPanel, setShowAdjustAudioPanel] = useState(false);
 	const [showExerciseModal, setShowExerciseModal] = useState(false);
 	const introOpacity = useRef(new Animated.Value(0)).current;
 	const prevIsFocusedRef = useRef(isFocused);
@@ -42,7 +44,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 
 	// Pause breathing when panel opens, resume when it closes
 	useEffect(() => {
-		if (showUpdateRitualPanel) {
+		if (showUpdateRitualPanel || showAdjustAudioPanel) {
 			// Panel opening - save current pause state and pause breathing
 			wasPausedBeforePanelRef.current = isPaused;
 			setIsPaused(true);
@@ -50,7 +52,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 			// Panel closing - restore previous pause state
 			setIsPaused(wasPausedBeforePanelRef.current);
 		}
-	}, [showUpdateRitualPanel]);
+	}, [showUpdateRitualPanel, showAdjustAudioPanel]);
 
 	// Reset state when screen becomes focused after completion
 	useEffect(() => {
@@ -111,6 +113,7 @@ export default function Breathing({ navigation }: BreathingProps) {
 		setIsPaused(false);
 		setShowControls(false);
 		setShowUpdateRitualPanel(false);
+		setShowAdjustAudioPanel(false);
 		setShowExerciseModal(false);
 
 		// Manually trigger intro animation sequence
@@ -195,6 +198,9 @@ export default function Breathing({ navigation }: BreathingProps) {
 				{showControls && (
 					<PanelPlayerControls
 						isPaused={isPaused}
+						onCustomizeAudio={() => {
+							setShowAdjustAudioPanel(true);
+						}}
 						onTogglePlayPause={togglePause}
 						onOpenControls={() => {
 							setShowUpdateRitualPanel(true);
@@ -219,6 +225,14 @@ export default function Breathing({ navigation }: BreathingProps) {
 				handleSelectBreathingExercise={handleSelectBreathingExercise}
 				onClose={() => {
 					setShowUpdateRitualPanel(false);
+				}}
+			/>
+
+			{/* Adjust Audio Panel */}
+			<PanelAdjustAudio
+				visible={showAdjustAudioPanel}
+				onClose={() => {
+					setShowAdjustAudioPanel(false);
 				}}
 			/>
 
