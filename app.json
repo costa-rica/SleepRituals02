@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "sleeprituals02",
-    "slug": "sleep-rituals-02",
+    "slug": "sleep-rituals",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/expo-assets/icon.png",
@@ -41,15 +41,15 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "5519d230-ad5e-477b-9343-4626ce9b3a00"
+        "projectId": "3645057e-8305-46a1-a788-c3e211fae451"
       }
     },
-    "owner": "costa-rica",
+    "owner": "matt0223",
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/5519d230-ad5e-477b-9343-4626ce9b3a00"
+      "url": "https://u.expo.dev/3645057e-8305-46a1-a788-c3e211fae451"
     }
   }
 }
