@@ -106,7 +106,6 @@ const Index = () => {
 					<BackgroundLayer
 						screenIndex={screenIndex}
 						currentScreen={currentScreen}
-						navigation={navigationRef.current}
 					>
 						<Stack.Navigator
 							screenOptions={{

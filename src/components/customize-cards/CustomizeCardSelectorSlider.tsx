@@ -2,6 +2,8 @@ import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import Slider from "@react-native-community/slider";
 import { Ionicons } from "@expo/vector-icons";
+import CustomizeCardBase from "./CustomizeCardBase";
+import { colors, typography } from "../../constants/designTokens";
 
 interface CustomizeCardSelectorSliderProps {
 	title: string;
@@ -15,11 +17,10 @@ const CustomizeCardSelectorSlider: React.FC<
 	CustomizeCardSelectorSliderProps
 > = ({ title, selection, volume, onPress, onVolumeChange }) => {
 	return (
-		<View style={styles.container}>
-			<Text style={styles.title}>{title}</Text>
+		<CustomizeCardBase title={title}>
 			<Pressable onPress={onPress} style={styles.selectionContainer}>
 				<Text style={styles.selection}>{selection}</Text>
-				<Ionicons name="chevron-forward" size={24} color="#8B8B8B" />
+				<Ionicons name="chevron-forward" size={24} color={colors.textSecondary} />
 			</Pressable>
 			<Slider
 				style={styles.slider}
@@ -27,30 +28,15 @@ const CustomizeCardSelectorSlider: React.FC<
 				maximumValue={100}
 				value={volume}
 				onValueChange={onVolumeChange}
-				minimumTrackTintColor="#8B7FB8"
-				maximumTrackTintColor="#312A43"
-				thumbTintColor="#8B7FB8"
+				minimumTrackTintColor={colors.accentPurple}
+				maximumTrackTintColor={colors.cardBorderDisabled}
+				thumbTintColor={colors.accentPurple}
 			/>
-		</View>
+		</CustomizeCardBase>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		marginBottom: 24,
-		borderRadius: 16,
-		borderWidth: 1,
-		borderColor: "#312A43",
-		backgroundColor: "#1E182E",
-		opacity: 0.5,
-		padding: 16,
-	},
-	title: {
-		fontSize: 14,
-		fontWeight: "400",
-		color: "#8B8B8B",
-		marginBottom: 8,
-	},
 	selectionContainer: {
 		flexDirection: "row",
 		justifyContent: "space-between",
@@ -59,9 +45,9 @@ const styles = StyleSheet.create({
 		marginBottom: 8,
 	},
 	selection: {
-		fontSize: 18,
-		fontWeight: "500",
-		color: "#FFFFFF",
+		fontSize: typography.cardValue.fontSize,
+		fontWeight: typography.cardValue.fontWeight,
+		color: colors.textPrimary,
 	},
 	slider: {
 		width: "100%",

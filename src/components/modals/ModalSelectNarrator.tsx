@@ -5,12 +5,14 @@ import {
 	StyleSheet,
 	Modal,
 	Pressable,
-	FlatList,
+	ScrollView,
+	SafeAreaView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Audio } from "expo-av";
 import { useAppDispatch } from "../../store";
 import { updateNarratorVoiceName } from "../../store/features/sound/soundSlice";
+import { colors, spacing, typography } from "../../constants/designTokens";
 
 interface ModalSelectNarratorProps {
 	visible: boolean;
@@ -101,138 +103,139 @@ const ModalSelectNarrator: React.FC<ModalSelectNarratorProps> = ({
 		};
 	}, [sound]);
 
-	const renderNarrator = ({ item }: { item: string }) => {
-		const isSelected = selectedNarrator === item;
-		const isPlaying = playingNarrator === item;
-
-		return (
-			<Pressable
-				style={[
-					styles.narratorItem,
-					isSelected && styles.narratorItemSelected,
-				]}
-				onPress={() => handleSelect(item)}
-			>
-				<Text style={styles.narratorText}>{item}</Text>
-				{isSelected && (
-					<Pressable
-						style={styles.playButton}
-						onPress={() => handlePlayPreview(item)}
-					>
-						<Ionicons
-							name={isPlaying ? "pause" : "play"}
-							size={20}
-							color="#FFFFFF"
-						/>
-					</Pressable>
-				)}
-			</Pressable>
-		);
-	};
-
 	return (
 		<Modal
 			visible={visible}
-			transparent
-			animationType="fade"
+			animationType="slide"
+			transparent={true}
 			onRequestClose={onClose}
 		>
-			<View style={styles.overlay}>
+			<SafeAreaView style={styles.modalOverlay}>
 				<View style={styles.modalContainer}>
+					{/* Title */}
 					<Text style={styles.title}>Select your narrator</Text>
 
-					<FlatList
-						data={NARRATORS}
-						renderItem={renderNarrator}
-						keyExtractor={(item) => item}
-						style={styles.list}
-						contentContainerStyle={styles.listContent}
-					/>
+					{/* Narrator Options */}
+					<ScrollView style={styles.optionsContainer} showsVerticalScrollIndicator={false}>
+						{NARRATORS.map((narrator) => {
+							const isSelected = selectedNarrator === narrator;
+							const isPlaying = playingNarrator === narrator;
 
-					{/* "Use your own voice" option - locked for now */}
-					<Pressable style={styles.customVoiceItem} disabled>
-						<View style={styles.customVoiceContent}>
-							<Ionicons name="sparkles" size={20} color="#8B7FB8" />
-							<Text style={styles.customVoiceText}>Use your own voice</Text>
-						</View>
-						<View style={styles.lockIcon}>
-							<Ionicons name="lock-closed" size={16} color="#8B8B8B" />
-						</View>
-					</Pressable>
+							return (
+								<Pressable
+									key={narrator}
+									onPress={() => handleSelect(narrator)}
+									style={styles.optionWrapper}
+								>
+									<View style={[
+										styles.narratorItem,
+										isSelected && styles.narratorItemSelected,
+									]}>
+										<Text style={styles.narratorText}>{narrator}</Text>
+										{isSelected && (
+											<Pressable
+												style={styles.playButton}
+												onPress={() => handlePlayPreview(narrator)}
+											>
+												<Ionicons
+													name={isPlaying ? "pause" : "play"}
+													size={20}
+													color={colors.textPrimary}
+												/>
+											</Pressable>
+										)}
+									</View>
+								</Pressable>
+							);
+						})}
 
+						{/* "Use your own voice" option - locked for now */}
+						<Pressable style={styles.customVoiceItem} disabled>
+							<View style={styles.customVoiceContent}>
+								<Ionicons name="sparkles" size={20} color={colors.accentPurple} />
+								<Text style={styles.customVoiceText}>Use your own voice</Text>
+							</View>
+							<View style={styles.lockIcon}>
+								<Ionicons name="lock-closed" size={16} color={colors.textMuted} />
+							</View>
+						</Pressable>
+					</ScrollView>
+
+					{/* Select Button */}
 					<Pressable style={styles.selectButton} onPress={handleConfirm}>
 						<Text style={styles.selectButtonText}>Select</Text>
 					</Pressable>
 				</View>
-			</View>
+			</SafeAreaView>
 		</Modal>
 	);
 };
 
 const styles = StyleSheet.create({
-	overlay: {
+	modalOverlay: {
 		flex: 1,
-		backgroundColor: "rgba(0, 0, 0, 0.7)",
-		justifyContent: "center",
-		alignItems: "center",
-		paddingHorizontal: 24,
+		backgroundColor: colors.backgroundDark,
+		justifyContent: 'center',
 	},
 	modalContainer: {
-		backgroundColor: "#1A1625",
-		borderRadius: 24,
-		padding: 24,
-		width: "100%",
-		maxWidth: 400,
+		flex: 1,
+		paddingTop: 40,
+		paddingBottom: 40,
+		paddingHorizontal: spacing.panelPaddingHorizontal,
 	},
 	title: {
-		fontSize: 24,
-		fontWeight: "600",
-		color: "#FFFFFF",
+		fontSize: typography.panelTitle.fontSize,
+		fontWeight: typography.panelTitle.fontWeight,
+		color: colors.textPrimary,
 		textAlign: "center",
+		marginBottom: 32,
+	},
+	optionsContainer: {
+		flex: 1,
 		marginBottom: 24,
 	},
-	list: {
-		maxHeight: 400,
-	},
-	listContent: {
-		gap: 12,
+	optionWrapper: {
+		marginBottom: 8,
 	},
 	narratorItem: {
-		backgroundColor: "#2A2535",
+		backgroundColor: colors.cardBackground,
 		borderRadius: 16,
 		padding: 20,
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "center",
-		borderWidth: 2,
-		borderColor: "transparent",
+		borderWidth: 1,
+		borderColor: colors.cardBorder,
 	},
 	narratorItemSelected: {
-		backgroundColor: "#3D2F5A",
-		borderColor: "#8B7FB8",
+		backgroundColor: colors.cardBackgroundLifted,
+		borderColor: colors.accentPurple,
+		borderWidth: 2,
 	},
 	narratorText: {
 		fontSize: 18,
 		fontWeight: "500",
-		color: "#FFFFFF",
+		color: colors.textPrimary,
 	},
 	playButton: {
 		width: 48,
 		height: 48,
 		borderRadius: 24,
 		borderWidth: 2,
-		borderColor: "#FFFFFF",
+		borderColor: colors.textPrimary,
 		justifyContent: "center",
 		alignItems: "center",
 	},
 	customVoiceItem: {
-		backgroundColor: "#2A2535",
+		backgroundColor: colors.cardBackground,
+		borderColor: colors.cardBorder,
+		borderWidth: 1,
 		borderRadius: 16,
 		padding: 20,
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "center",
-		marginTop: 12,
+		marginBottom: 8,
 		opacity: 0.5,
 	},
 	customVoiceContent: {
@@ -243,27 +246,26 @@ const styles = StyleSheet.create({
 	customVoiceText: {
 		fontSize: 18,
 		fontWeight: "500",
-		color: "#FFFFFF",
+		color: colors.textPrimary,
 	},
 	lockIcon: {
 		width: 32,
 		height: 32,
 		borderRadius: 16,
-		backgroundColor: "#1A1625",
+		backgroundColor: colors.backgroundDark,
 		justifyContent: "center",
 		alignItems: "center",
 	},
 	selectButton: {
-		backgroundColor: "#8B7FB8",
+		backgroundColor: colors.accentPurple,
 		paddingVertical: 18,
 		borderRadius: 28,
 		alignItems: "center",
-		marginTop: 24,
 	},
 	selectButtonText: {
-		fontSize: 18,
-		fontWeight: "600",
-		color: "#FFFFFF",
+		fontSize: typography.buttonText.fontSize,
+		fontWeight: typography.buttonText.fontWeight,
+		color: colors.textPrimary,
 	},
 });
 

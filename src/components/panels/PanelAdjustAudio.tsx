@@ -16,6 +16,7 @@ import {
 	updateNarratorVoiceVolume,
 	updateMusicVolume,
 } from "../../store";
+import { colors, spacing, typography } from "../../constants/designTokens";
 
 interface PanelAdjustAudioProps {
 	visible: boolean;
@@ -146,17 +147,17 @@ const styles = StyleSheet.create({
 		justifyContent: "flex-end",
 	},
 	panel: {
-		backgroundColor: "#0F1015",
-		borderTopLeftRadius: 24,
-		borderTopRightRadius: 24,
-		paddingTop: 32,
-		paddingHorizontal: 24,
-		paddingBottom: 48,
+		backgroundColor: colors.backgroundPanel,
+		borderTopLeftRadius: spacing.panelBorderRadius,
+		borderTopRightRadius: spacing.panelBorderRadius,
+		paddingTop: spacing.panelPaddingTop,
+		paddingHorizontal: spacing.panelPaddingHorizontal,
+		paddingBottom: spacing.panelPaddingBottom,
 	},
 	title: {
-		fontSize: 24,
-		fontWeight: "600",
-		color: "#FFFFFF",
+		fontSize: typography.panelTitle.fontSize,
+		fontWeight: typography.panelTitle.fontWeight,
+		color: colors.textPrimary,
 		textAlign: "center",
 		marginBottom: 32,
 	},
@@ -164,15 +165,15 @@ const styles = StyleSheet.create({
 		marginBottom: 32,
 	},
 	closeButton: {
-		backgroundColor: "#8B7FB8",
+		backgroundColor: colors.accentPurple,
 		paddingVertical: 18,
 		borderRadius: 28,
 		alignItems: "center",
 	},
 	closeButtonText: {
-		fontSize: 18,
-		fontWeight: "600",
-		color: "#FFFFFF",
+		fontSize: typography.buttonText.fontSize,
+		fontWeight: typography.buttonText.fontWeight,
+		color: colors.textPrimary,
 	},
 });
 

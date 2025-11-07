@@ -1,5 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
+import CustomizeCardBase from "./CustomizeCardBase";
+import { colors, spacing, typography } from "../../constants/designTokens";
 
 interface CustomizeCardPlusMinusProps {
 	panelSelectorTitle: string;
@@ -24,8 +26,7 @@ const CustomizeCardPlusMinus: React.FC<CustomizeCardPlusMinusProps> = ({
 	const isAtMax = maxValue !== undefined && value >= maxValue;
 
 	return (
-		<View style={styles.container}>
-			<Text style={styles.title}>{panelSelectorTitle}</Text>
+		<CustomizeCardBase title={panelSelectorTitle}>
 			<View style={styles.contentRow}>
 				<Text style={styles.value}>
 					{formatValue ? formatValue(value) : value}
@@ -51,26 +52,11 @@ const CustomizeCardPlusMinus: React.FC<CustomizeCardPlusMinusProps> = ({
 					</Pressable>
 				</View>
 			</View>
-		</View>
+		</CustomizeCardBase>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		marginBottom: 24,
-		borderRadius: 16,
-		borderWidth: 1,
-		borderColor: "#312A43",
-		backgroundColor: "#1E182E",
-		opacity: 0.5,
-		padding: 16,
-	},
-	title: {
-		fontSize: 14,
-		fontWeight: "400",
-		color: "#8B8B8B",
-		marginBottom: 8,
-	},
 	contentRow: {
 		flexDirection: "row",
 		justifyContent: "space-between",
@@ -78,22 +64,22 @@ const styles = StyleSheet.create({
 		paddingVertical: 4,
 	},
 	value: {
-		fontSize: 18,
-		fontWeight: "500",
-		color: "#FFFFFF",
+		fontSize: typography.cardValue.fontSize,
+		fontWeight: typography.cardValue.fontWeight,
+		color: colors.textPrimary,
 		flex: 1,
 	},
 	buttonGroup: {
 		flexDirection: "row",
-		gap: 12,
+		gap: spacing.buttonGap,
 	},
 	button: {
-		width: 48,
-		height: 48,
-		borderRadius: 12,
+		width: spacing.buttonSize,
+		height: spacing.buttonSize,
+		borderRadius: spacing.buttonBorderRadius,
 		borderWidth: 1,
-		borderColor: "#312A43",
-		backgroundColor: "#1E182E",
+		borderColor: colors.cardBorder,
+		backgroundColor: colors.cardBackground,
 		justifyContent: "center",
 		alignItems: "center",
 	},
@@ -101,9 +87,9 @@ const styles = StyleSheet.create({
 		opacity: 0.3,
 	},
 	buttonText: {
-		fontSize: 24,
-		fontWeight: "400",
-		color: "#FFFFFF",
+		fontSize: typography.buttonIcon.fontSize,
+		fontWeight: typography.buttonIcon.fontWeight,
+		color: colors.textPrimary,
 	},
 	buttonTextDisabled: {
 		opacity: 0.3,

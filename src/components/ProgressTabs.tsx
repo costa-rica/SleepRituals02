@@ -14,7 +14,7 @@ export function ProgressTabs({ total, current }: ProgressTabsProps) {
           key={index}
           style={[
             styles.tab,
-            index === current && styles.tabActive,
+            index <= current && styles.tabActive,
           ]}
         />
       ))}

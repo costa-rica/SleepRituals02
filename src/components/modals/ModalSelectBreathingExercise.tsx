@@ -8,9 +8,9 @@ import {
   ScrollView,
   SafeAreaView,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { BREATHING_EXERCISES_ARRAY } from '../../constants/breathingExercises';
 import type { BreatheExercise } from '../../store';
+import { colors, spacing, typography } from '../../constants/designTokens';
 
 interface ModalSelectBreathingExerciseProps {
   visible: boolean;
@@ -60,35 +60,15 @@ const ModalSelectBreathingExercise: React.FC<ModalSelectBreathingExerciseProps> 
                   onPress={() => setSelectedExercise(exercise.exerciseTitle)}
                   style={styles.optionWrapper}
                 >
-                  {isSelected ? (
-                    // Selected state with gradient border
-                    <LinearGradient
-                      colors={['#42098F', '#B53FFE']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                      style={styles.gradientBorder}
-                    >
-                      <LinearGradient
-                        colors={['rgba(66, 9, 143, 0.3)', 'rgba(181, 63, 254, 0.3)']}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={styles.selectedOption}
-                      >
-                        <Text style={styles.optionTitle}>{exercise.exerciseTitle}</Text>
-                        <Text style={styles.optionDescription}>
-                          {exercise.exerciseDescription}
-                        </Text>
-                      </LinearGradient>
-                    </LinearGradient>
-                  ) : (
-                    // Unselected state
-                    <View style={styles.option}>
-                      <Text style={styles.optionTitle}>{exercise.exerciseTitle}</Text>
-                      <Text style={styles.optionDescription}>
-                        {exercise.exerciseDescription}
-                      </Text>
-                    </View>
-                  )}
+                  <View style={[
+                    styles.option,
+                    isSelected && styles.optionSelected
+                  ]}>
+                    <Text style={styles.optionTitle}>{exercise.exerciseTitle}</Text>
+                    <Text style={styles.optionDescription}>
+                      {exercise.exerciseDescription}
+                    </Text>
+                  </View>
                 </Pressable>
               );
             })}
@@ -107,19 +87,19 @@ const ModalSelectBreathingExercise: React.FC<ModalSelectBreathingExerciseProps> 
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: '#0F1015',
+    backgroundColor: colors.backgroundDark,
     justifyContent: 'center',
-    paddingHorizontal: 24,
   },
   modalContainer: {
     flex: 1,
     paddingTop: 40,
     paddingBottom: 40,
+    paddingHorizontal: spacing.panelPaddingHorizontal,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    fontSize: typography.panelTitle.fontSize,
+    fontWeight: typography.panelTitle.fontWeight,
+    color: colors.textPrimary,
     textAlign: 'center',
     marginBottom: 32,
   },
@@ -131,48 +111,39 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   option: {
-    backgroundColor: '#212131',
-    borderColor: '#3E2566',
+    backgroundColor: colors.cardBackground,
+    borderColor: colors.cardBorder,
     borderWidth: 1,
     borderRadius: 16,
     padding: 16,
   },
-  gradientBorder: {
-    borderRadius: 16,
-    padding: 1,
-    shadowColor: '#6913AC',
-    shadowOffset: { width: 0, height: -1 },
-    shadowOpacity: 1,
-    shadowRadius: 0,
-    elevation: 5,
-  },
-  selectedOption: {
-    borderRadius: 15,
-    padding: 16,
+  optionSelected: {
+    backgroundColor: colors.cardBackgroundLifted,
+    borderColor: colors.accentPurple,
+    borderWidth: 2,
   },
   optionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     marginBottom: 8,
   },
   optionDescription: {
     fontSize: 14,
     fontWeight: '400',
-    color: '#FFFFFF',
-    opacity: 0.8,
+    color: colors.textSecondary,
     lineHeight: 20,
   },
   selectButton: {
-    backgroundColor: '#8B7FB8',
+    backgroundColor: colors.accentPurple,
     paddingVertical: 18,
     borderRadius: 28,
     alignItems: 'center',
   },
   selectButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    fontSize: typography.buttonText.fontSize,
+    fontWeight: typography.buttonText.fontWeight,
+    color: colors.textPrimary,
   },
 });
 

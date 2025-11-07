@@ -1,5 +1,7 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
+import { Text, StyleSheet, Pressable } from "react-native";
+import CustomizeCardBase from "./CustomizeCardBase";
+import { colors, typography } from "../../constants/designTokens";
 
 interface CustomizeCardSelectorProps {
 	panelSelectorTitle: string;
@@ -13,38 +15,22 @@ const CustomizeCardSelector: React.FC<CustomizeCardSelectorProps> = ({
 	handlePress,
 }) => {
 	return (
-		<View style={styles.container}>
-			<Text style={styles.title}>{panelSelectorTitle}</Text>
+		<CustomizeCardBase title={panelSelectorTitle}>
 			<Pressable onPress={handlePress} style={styles.selectionContainer}>
 				<Text style={styles.selection}>{panelSelectorSelection}</Text>
 			</Pressable>
-		</View>
+		</CustomizeCardBase>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		marginBottom: 24,
-		borderRadius: 16,
-		borderWidth: 1,
-		borderColor: "#312A43",
-		backgroundColor: "#1E182E",
-		opacity: 0.5,
-		padding: 16,
-	},
-	title: {
-		fontSize: 14,
-		fontWeight: "400",
-		color: "#8B8B8B",
-		marginBottom: 8,
-	},
 	selectionContainer: {
 		paddingVertical: 4,
 	},
 	selection: {
-		fontSize: 18,
-		fontWeight: "500",
-		color: "#FFFFFF",
+		fontSize: typography.cardValue.fontSize,
+		fontWeight: typography.cardValue.fontWeight,
+		color: colors.textPrimary,
 	},
 });
 

@@ -6,6 +6,7 @@ import {
 	Text,
 	TouchableOpacity,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import type { NavigationProp } from "@react-navigation/native";
 import type { RootStackParamList } from "../types/navigation";
 import StarField from "./StarField";
@@ -15,7 +16,6 @@ type ScreenName = "GoodTimes" | "Breathing" | "Mantra";
 interface BackgroundLayerProps {
 	screenIndex: number;
 	currentScreen: ScreenName;
-	navigation: NavigationProp<RootStackParamList>;
 	children: React.ReactNode;
 }
 
@@ -28,47 +28,35 @@ const SCREEN_TITLES: Record<ScreenName, string> = {
 const BackgroundLayer: React.FC<BackgroundLayerProps> = ({
 	screenIndex,
 	currentScreen,
-	navigation,
 	children,
 }) => {
+	const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+	
+	const screens: ScreenName[] = ["GoodTimes", "Breathing", "Mantra"];
+	const currentIndex = screens.indexOf(currentScreen);
 
-	// Determine which screens to show in the navigation wheel
-	const getNavigationWheelItems = () => {
-		const screens: ScreenName[] = ["GoodTimes", "Breathing", "Mantra"];
-		const currentIndex = screens.indexOf(currentScreen);
+	// Determine which screens to show in each position
+	const prevScreen = currentIndex > 0
+		? {
+				name: screens[currentIndex - 1],
+				title: SCREEN_TITLES[screens[currentIndex - 1]],
+				opacity: 0.3,
+		  }
+		: null;
 
-		const prevScreen =
-			currentIndex > 0
-				? {
-						name: screens[currentIndex - 1],
-						title: SCREEN_TITLES[screens[currentIndex - 1]],
-						opacity: 0.3,
-						position: "left" as const,
-				  }
-				: null;
-
-		const currentScreenItem = {
-			name: currentScreen,
-			title: SCREEN_TITLES[currentScreen],
-			opacity: 1,
-			position: "center" as const,
-		};
-
-		const nextScreen =
-			currentIndex < screens.length - 1
-				? {
-						name: screens[currentIndex + 1],
-						title: SCREEN_TITLES[screens[currentIndex + 1]],
-						opacity: 0.4,
-						position: "right" as const,
-				  }
-				: null;
-
-		return { prevScreen, currentScreenItem, nextScreen };
+	const currentScreenItem = {
+		name: currentScreen,
+		title: SCREEN_TITLES[currentScreen],
+		opacity: 1,
 	};
 
-	const { prevScreen, currentScreenItem, nextScreen } =
-		getNavigationWheelItems();
+	const nextScreen = currentIndex < screens.length - 1
+		? {
+				name: screens[currentIndex + 1],
+				title: SCREEN_TITLES[screens[currentIndex + 1]],
+				opacity: 0.4,
+		  }
+		: null;
 
 	return (
 		<View style={styles.container}>
@@ -87,22 +75,16 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({
 
 			{/* Fixed Navigation Wheel Header */}
 			<View style={styles.navigationWheel}>
-				{/* Left side container - takes up space to balance right */}
+				{/* Left side container */}
 				<View style={styles.navSideLeft}>
 					{prevScreen && (
 						<TouchableOpacity
-							onPress={() =>
-								navigation.navigate(prevScreen.name as keyof RootStackParamList)
-							}
+							onPress={() => {
+								navigation.navigate(prevScreen.name as keyof RootStackParamList);
+							}}
 							activeOpacity={0.6}
 						>
-							<Text
-								style={[
-									styles.navigationText,
-									styles.navLeftText,
-									{ opacity: prevScreen.opacity },
-								]}
-							>
+							<Text style={[styles.navigationText, styles.navLeftText, { opacity: prevScreen.opacity }]}>
 								{prevScreen.title}
 							</Text>
 						</TouchableOpacity>
@@ -111,32 +93,21 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({
 
 				{/* Current Screen (center) - Always centered */}
 				<View style={styles.navCenter}>
-					<Text
-						style={[
-							styles.navigationText,
-							{ opacity: currentScreenItem.opacity },
-						]}
-					>
+					<Text style={[styles.navigationText, { opacity: currentScreenItem.opacity }]}>
 						{currentScreenItem.title}
 					</Text>
 				</View>
 
-				{/* Right side container - takes up space to balance left */}
+				{/* Right side container */}
 				<View style={styles.navSideRight}>
 					{nextScreen && (
 						<TouchableOpacity
-							onPress={() =>
-								navigation.navigate(nextScreen.name as keyof RootStackParamList)
-							}
+							onPress={() => {
+								navigation.navigate(nextScreen.name as keyof RootStackParamList);
+							}}
 							activeOpacity={0.6}
 						>
-							<Text
-								style={[
-									styles.navigationText,
-									styles.navRightText,
-									{ opacity: nextScreen.opacity },
-								]}
-							>
+							<Text style={[styles.navigationText, styles.navRightText, { opacity: nextScreen.opacity }]}>
 								{nextScreen.title}
 							</Text>
 						</TouchableOpacity>
