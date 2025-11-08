@@ -21,7 +21,14 @@ interface ModalSelectNarratorProps {
 	currentNarrator: string;
 }
 
-const NARRATORS = ["No Voice", "Carla", "Michael", "Sira", "Walter", "Frederick"];
+const NARRATORS = [
+	"No Voice",
+	// "Carla", // Temporarily hidden - audio quality needs improvement
+	// "Michael", // Temporarily hidden - audio quality needs improvement
+	"Sira",
+	// "Walter", // Temporarily hidden - audio quality needs improvement
+	"Frederick",
+];
 
 const ModalSelectNarrator: React.FC<ModalSelectNarratorProps> = ({
 	visible,
