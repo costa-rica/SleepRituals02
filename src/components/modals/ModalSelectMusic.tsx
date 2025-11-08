@@ -11,87 +11,96 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Audio } from "expo-av";
 import { useAppDispatch } from "../../store";
-import { updateNarratorVoiceName } from "../../store/features/sound/soundSlice";
+import { updateMusicName } from "../../store/features/sound/soundSlice";
 import { colors, spacing, typography } from "../../constants/designTokens";
 import SelectableCard from "../cards/SelectableCard";
 
-interface ModalSelectNarratorProps {
+interface ModalSelectMusicProps {
 	visible: boolean;
 	onClose: () => void;
-	currentNarrator: string;
+	currentMusic: string;
 }
 
-const NARRATORS = ["No Voice", "Carla", "Michael", "Sira", "Walter", "Frederick"];
+const MUSIC_TRACKS = [
+	"No Music",
+	"Ocean Waves",
+	"Rain Sounds", 
+	"Forest Night",
+	"White Noise",
+	"Calm Piano",
+	"Gentle Stream",
+];
 
-const ModalSelectNarrator: React.FC<ModalSelectNarratorProps> = ({
+const ModalSelectMusic: React.FC<ModalSelectMusicProps> = ({
 	visible,
 	onClose,
-	currentNarrator,
+	currentMusic,
 }) => {
 	const dispatch = useAppDispatch();
-	const [selectedNarrator, setSelectedNarrator] = useState(currentNarrator);
-	const [playingNarrator, setPlayingNarrator] = useState<string | null>(null);
+	const [selectedMusic, setSelectedMusic] = useState(currentMusic);
+	const [playingMusic, setPlayingMusic] = useState<string | null>(null);
 	const [sound, setSound] = useState<Audio.Sound | null>(null);
 
-	const handleSelect = (narrator: string) => {
-		setSelectedNarrator(narrator);
+	const handleSelect = (music: string) => {
+		setSelectedMusic(music);
 	};
 
 	const handleConfirm = () => {
-		dispatch(updateNarratorVoiceName(selectedNarrator));
+		dispatch(updateMusicName(selectedMusic));
 		onClose();
 	};
 
-	const handlePlayPreview = async (narrator: string) => {
+	const handlePlayPreview = async (music: string) => {
 		try {
 			// Stop any currently playing sound
 			if (sound) {
 				await sound.stopAsync();
 				await sound.unloadAsync();
 				setSound(null);
-				setPlayingNarrator(null);
+				setPlayingMusic(null);
 			}
 
-			// If clicking the same narrator that's playing, just stop
-			if (playingNarrator === narrator) {
+			// If clicking the same music that's playing, just stop
+			if (playingMusic === music) {
 				return;
 			}
 
-			// Static mapping of preview audio files (Metro bundler requires static requires)
-			const previewAudioMap: Record<string, any> = {
-				carla: require("../../assets/audio/breathing/carla/inhale.mp3"),
-				michael: require("../../assets/audio/breathing/micheal/inhale.mp3"),
-				sira: require("../../assets/audio/breathing/sira/inhale.mp3"),
-				walter: require("../../assets/audio/breathing/walter/inhale.mp3"),
-				frederick: require("../../assets/audio/breathing/frederick/inhale.mp3"),
+			// TODO: Add actual music preview files
+			// For now, we'll just simulate the play state
+			console.log(`Playing preview for: ${music}`);
+			setPlayingMusic(music);
+
+			// Simulate a preview duration (e.g., 5 seconds)
+			setTimeout(() => {
+				setPlayingMusic(null);
+			}, 5000);
+
+			/* When audio files are ready, use this pattern:
+			const audioMap: Record<string, any> = {
+				"ocean-waves": require("../../assets/audio/music/ocean-waves-preview.mp3"),
+				"rain-sounds": require("../../assets/audio/music/rain-sounds-preview.mp3"),
+				// ... etc
 			};
 
-			const narratorLowerCase = narrator.toLowerCase();
-			const audioSource = previewAudioMap[narratorLowerCase];
+			const musicKey = music.toLowerCase().replace(/\s+/g, "-");
+			const audioSource = audioMap[musicKey];
 
-			if (!audioSource) {
-				console.error(`No preview audio found for narrator: ${narrator}`);
-				return;
+			if (audioSource) {
+				const { sound: newSound } = await Audio.Sound.createAsync(audioSource);
+				setSound(newSound);
+				setPlayingMusic(music);
+				await newSound.playAsync();
+
+				newSound.setOnPlaybackStatusUpdate((status) => {
+					if (status.isLoaded && status.didJustFinish) {
+						setPlayingMusic(null);
+					}
+				});
 			}
-
-			// Play the inhale sample for this narrator
-			const { sound: newSound } = await Audio.Sound.createAsync(audioSource);
-
-			setSound(newSound);
-			setPlayingNarrator(narrator);
-
-			// Play the sound
-			await newSound.playAsync();
-
-			// When sound finishes, reset playing state
-			newSound.setOnPlaybackStatusUpdate((status) => {
-				if (status.isLoaded && status.didJustFinish) {
-					setPlayingNarrator(null);
-				}
-			});
+			*/
 		} catch (error) {
 			console.error("Error playing preview:", error);
-			setPlayingNarrator(null);
+			setPlayingMusic(null);
 		}
 	};
 
@@ -115,31 +124,31 @@ const ModalSelectNarrator: React.FC<ModalSelectNarratorProps> = ({
 				<View style={styles.modalContainer}>
 					{/* Fixed Header */}
 					<View style={styles.headerContainer}>
-						<Text style={styles.title}>Select your narrator</Text>
+						<Text style={styles.title}>Select your music</Text>
 					</View>
 
-					{/* Narrator Options */}
+					{/* Music Options */}
 					<ScrollView 
 						style={styles.optionsContainer} 
 						contentContainerStyle={styles.scrollContent}
 						showsVerticalScrollIndicator={false}
 					>
-						{NARRATORS.map((narrator) => {
-							const isSelected = selectedNarrator === narrator;
-							const isPlaying = playingNarrator === narrator;
+						{MUSIC_TRACKS.map((music) => {
+							const isSelected = selectedMusic === music;
+							const isPlaying = playingMusic === music;
 
 							return (
-								<View key={narrator} style={styles.optionWrapper}>
+								<View key={music} style={styles.optionWrapper}>
 									<SelectableCard
 										isSelected={isSelected}
-										onPress={() => handleSelect(narrator)}
+										onPress={() => handleSelect(music)}
 										fixedHeight={88}
 									>
-										<Text style={styles.narratorText}>{narrator}</Text>
-										{isSelected && narrator !== "No Voice" && (
+										<Text style={styles.musicText}>{music}</Text>
+										{isSelected && music !== "No Music" && (
 											<Pressable
 												style={styles.playButton}
-												onPress={() => handlePlayPreview(narrator)}
+												onPress={() => handlePlayPreview(music)}
 											>
 												<Ionicons
 													name={isPlaying ? "pause" : "play"}
@@ -152,24 +161,6 @@ const ModalSelectNarrator: React.FC<ModalSelectNarratorProps> = ({
 								</View>
 							);
 						})}
-
-						{/* "Use your own voice" option - locked for now */}
-						<View style={styles.optionWrapper}>
-							<SelectableCard
-								isSelected={false}
-								onPress={() => {}}
-								disabled={true}
-								fixedHeight={88}
-							>
-								<View style={styles.customVoiceContent}>
-									<Ionicons name="sparkles" size={20} color={colors.accentPurple} />
-									<Text style={styles.customVoiceText}>Use your own voice</Text>
-								</View>
-								<View style={styles.lockIcon}>
-									<Ionicons name="lock-closed" size={16} color={colors.textMuted} />
-								</View>
-							</SelectableCard>
-						</View>
 					</ScrollView>
 
 					{/* Fixed Button Area */}
@@ -224,7 +215,7 @@ const styles = StyleSheet.create({
 	optionWrapper: {
 		marginBottom: 8,
 	},
-	narratorText: {
+	musicText: {
 		fontSize: 18,
 		fontWeight: "500",
 		color: colors.textPrimary,
@@ -270,4 +261,5 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default ModalSelectNarrator;
+export default ModalSelectMusic;
+

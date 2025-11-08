@@ -54,21 +54,33 @@ export default function Breathing({ navigation }: BreathingProps) {
 		}
 	}, [showUpdateRitualPanel, showAdjustAudioPanel]);
 
-	// Reset state when screen becomes focused after completion
+	// Handle screen focus/blur: pause when leaving, reset if completed
 	useEffect(() => {
 		const prevIsFocused = prevIsFocusedRef.current;
 		prevIsFocusedRef.current = isFocused;
 
-		// If screen just became focused and exercise was completed, reset everything
-		if (!prevIsFocused && isFocused && hasCompleted) {
-			setCycleCount(0);
-			setHasCompleted(false);
-			setShowIntro(true);
-			setIsActive(false);
-			setIsPaused(false);
-			introOpacity.setValue(0);
+		// Screen just gained focus
+		if (!prevIsFocused && isFocused) {
+			// If exercise was completed, reset everything
+			if (hasCompleted) {
+				setCycleCount(0);
+				setHasCompleted(false);
+				setShowIntro(true);
+				setIsActive(false);
+				setIsPaused(false);
+				introOpacity.setValue(0);
+			}
+			// Otherwise, state is preserved (isPaused stays true if it was paused)
 		}
-	}, [isFocused, hasCompleted]);
+
+		// Screen just lost focus (user navigated away)
+		if (prevIsFocused && !isFocused) {
+			// If exercise is in progress (not completed), pause it
+			if (isActive && !hasCompleted) {
+				setIsPaused(true);
+			}
+		}
+	}, [isFocused, hasCompleted, isActive]);
 
 	// Fade in intro text and start breathing after delay
 	useEffect(() => {

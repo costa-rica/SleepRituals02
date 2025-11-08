@@ -11,6 +11,7 @@ import {
 import { BREATHING_EXERCISES_ARRAY } from '../../constants/breathingExercises';
 import type { BreatheExercise } from '../../store';
 import { colors, spacing, typography } from '../../constants/designTokens';
+import SelectableCard from '../cards/SelectableCard';
 
 interface ModalSelectBreathingExerciseProps {
   visible: boolean;
@@ -55,21 +56,20 @@ const ModalSelectBreathingExercise: React.FC<ModalSelectBreathingExerciseProps> 
               const isSelected = exercise.exerciseTitle === selectedExercise;
 
               return (
-                <Pressable
-                  key={exercise.exerciseTitle}
-                  onPress={() => setSelectedExercise(exercise.exerciseTitle)}
-                  style={styles.optionWrapper}
-                >
-                  <View style={[
-                    styles.option,
-                    isSelected && styles.optionSelected
-                  ]}>
-                    <Text style={styles.optionTitle}>{exercise.exerciseTitle}</Text>
-                    <Text style={styles.optionDescription}>
-                      {exercise.exerciseDescription}
-                    </Text>
-                  </View>
-                </Pressable>
+                <View key={exercise.exerciseTitle} style={styles.optionWrapper}>
+                  <SelectableCard
+                    isSelected={isSelected}
+                    onPress={() => setSelectedExercise(exercise.exerciseTitle)}
+                    style={styles.exerciseCard}
+                  >
+                    <View style={styles.exerciseContent}>
+                      <Text style={styles.optionTitle}>{exercise.exerciseTitle}</Text>
+                      <Text style={styles.optionDescription}>
+                        {exercise.exerciseDescription}
+                      </Text>
+                    </View>
+                  </SelectableCard>
+                </View>
               );
             })}
           </ScrollView>
@@ -110,17 +110,11 @@ const styles = StyleSheet.create({
   optionWrapper: {
     marginBottom: 8,
   },
-  option: {
-    backgroundColor: colors.cardBackground,
-    borderColor: colors.cardBorder,
-    borderWidth: 1,
-    borderRadius: 16,
+  exerciseCard: {
     padding: 16,
   },
-  optionSelected: {
-    backgroundColor: colors.cardBackgroundLifted,
-    borderColor: colors.accentPurple,
-    borderWidth: 2,
+  exerciseContent: {
+    flex: 1,
   },
   optionTitle: {
     fontSize: 18,

@@ -6,10 +6,10 @@ import {
 	Animated,
 	Pressable,
 	Dimensions,
-	Alert,
 } from "react-native";
 import CustomizeCardSelectorSlider from "../customize-cards/CustomizeCardSelectorSlider";
 import ModalSelectNarrator from "../modals/ModalSelectNarrator";
+import ModalSelectMusic from "../modals/ModalSelectMusic";
 import {
 	useAppSelector,
 	useAppDispatch,
@@ -42,6 +42,7 @@ const PanelAdjustAudio: React.FC<PanelAdjustAudioProps> = ({
 	const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
 	const [shouldRender, setShouldRender] = React.useState(false);
 	const [showNarratorModal, setShowNarratorModal] = React.useState(false);
+	const [showMusicModal, setShowMusicModal] = React.useState(false);
 
 	useEffect(() => {
 		if (visible) {
@@ -75,10 +76,7 @@ const PanelAdjustAudio: React.FC<PanelAdjustAudioProps> = ({
 	};
 
 	const handleMusicPress = () => {
-		Alert.alert(
-			"Music Selection",
-			"Modal to select music track will appear here"
-		);
+		setShowMusicModal(true);
 	};
 
 	const handleVoiceVolumeChange = (value: number) => {
@@ -111,6 +109,8 @@ const PanelAdjustAudio: React.FC<PanelAdjustAudioProps> = ({
 							volume={narratorVoiceVolume}
 							onPress={handleVoicePress}
 							onVolumeChange={handleVoiceVolumeChange}
+							disabled={narratorVoiceName === "No Voice"}
+							spacing="compact"
 						/>
 						<CustomizeCardSelectorSlider
 							title="Music"
@@ -118,6 +118,8 @@ const PanelAdjustAudio: React.FC<PanelAdjustAudioProps> = ({
 							volume={musicVolume}
 							onPress={handleMusicPress}
 							onVolumeChange={handleMusicVolumeChange}
+							disabled={musicName === "No Music"}
+							spacing="compact"
 						/>
 					</View>
 
@@ -132,6 +134,12 @@ const PanelAdjustAudio: React.FC<PanelAdjustAudioProps> = ({
 				visible={showNarratorModal}
 				onClose={() => setShowNarratorModal(false)}
 				currentNarrator={narratorVoiceName}
+			/>
+
+			<ModalSelectMusic
+				visible={showMusicModal}
+				onClose={() => setShowMusicModal(false)}
+				currentMusic={musicName}
 			/>
 		</>
 	);
@@ -150,7 +158,7 @@ const styles = StyleSheet.create({
 		backgroundColor: colors.backgroundPanel,
 		borderTopLeftRadius: spacing.panelBorderRadius,
 		borderTopRightRadius: spacing.panelBorderRadius,
-		paddingTop: spacing.panelPaddingTop,
+		paddingTop: 40, // 8px more than default to compensate for tighter card spacing
 		paddingHorizontal: spacing.panelPaddingHorizontal,
 		paddingBottom: spacing.panelPaddingBottom,
 	},

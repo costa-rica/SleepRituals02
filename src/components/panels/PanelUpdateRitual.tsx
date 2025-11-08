@@ -104,6 +104,7 @@ const PanelUpdateRitual: React.FC<PanelUpdateRitualProps> = ({
 						panelSelectorTitle="Type"
 						panelSelectorSelection={selectionName}
 						handlePress={handleSelectBreathingExercise}
+						spacing="compact"
 					/>
 					<CustomizeCardPlusMinus
 						panelSelectorTitle="Duration"
@@ -113,12 +114,13 @@ const PanelUpdateRitual: React.FC<PanelUpdateRitualProps> = ({
 						formatValue={formatCyclesValue}
 						minValue={1}
 						maxValue={10}
+						spacing="compact"
 					/>
 				</View>
 
 				{/* Save Button */}
 				<Pressable style={styles.saveButton} onPress={handleSave}>
-					<Text style={styles.saveButtonText}>Save</Text>
+					<Text style={styles.saveButtonText}>Save & Restart Ritual</Text>
 				</Pressable>
 			</View>
 		</Animated.View>
@@ -138,7 +140,7 @@ const styles = StyleSheet.create({
 		backgroundColor: colors.backgroundPanel,
 		borderTopLeftRadius: spacing.panelBorderRadius,
 		borderTopRightRadius: spacing.panelBorderRadius,
-		paddingTop: spacing.panelPaddingTop,
+		paddingTop: 40, // 8px more than default to compensate for tighter card spacing
 		paddingHorizontal: spacing.panelPaddingHorizontal,
 		paddingBottom: spacing.panelPaddingBottom,
 	},

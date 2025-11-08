@@ -77,6 +77,8 @@ export const BreathlyExercise: FC<Props> = ({
 
   // Play audio when step changes
   useEffect(() => {
+    let isCancelled = false; // Track if effect was cleaned up
+
     const playStepAudio = async () => {
       // Don't play audio if paused or no current step
       if (isPaused || !currentStep) {
@@ -95,6 +97,9 @@ export const BreathlyExercise: FC<Props> = ({
           soundRef.current = null;
         }
 
+        // Check if effect was cancelled while we were unloading
+        if (isCancelled) return;
+
         // Get the audio source for this step and narrator
         const audioSource = getBreathingAudioSource(narratorVoiceName, currentStep.id);
 
@@ -105,6 +110,13 @@ export const BreathlyExercise: FC<Props> = ({
 
         // Create and play the sound
         const { sound } = await Audio.Sound.createAsync(audioSource);
+        
+        // Check again if effect was cancelled during sound creation
+        if (isCancelled) {
+          await sound.unloadAsync();
+          return;
+        }
+
         soundRef.current = sound;
 
         // Set volume (convert 0-100 to 0-1)
@@ -119,11 +131,16 @@ export const BreathlyExercise: FC<Props> = ({
 
     playStepAudio();
 
-    // Cleanup function to unload sound when component unmounts
+    // Cleanup function to unload sound when component unmounts or dependencies change
     return () => {
+      isCancelled = true; // Mark as cancelled
       if (soundRef.current) {
-        soundRef.current.unloadAsync();
-        soundRef.current = null;
+        soundRef.current.stopAsync().then(() => {
+          if (soundRef.current) {
+            soundRef.current.unloadAsync();
+            soundRef.current = null;
+          }
+        }).catch(err => console.error('Error stopping audio:', err));
       }
     };
   }, [currentStep?.id, isPaused, narratorVoiceName, narratorVoiceVolume]);

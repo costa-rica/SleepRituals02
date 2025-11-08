@@ -9,17 +9,39 @@ interface Entry {
 	text: string;
 }
 
-// Array of inspiring placeholder questions
-const PLACEHOLDERS = [
-	"My son laughed at my joke",
-	"A stranger smiled at me",
-	"I finished something I'd been putting off",
-	"Someone said thank you",
-	"I had a moment of peace",
-	"Something made me laugh",
-	"I helped someone today",
-	"I learned something new",
+// Array of inspiring placeholder prompts
+const PLACEHOLDER_PROMPTS = [
+	"Something that made you laugh",
+	"A kind thing you did for someone",
+	"Something that inspired you",
+	"A moment of peace you experienced",
+	"Something you're grateful for",
+	"A person who brightened your day",
+	"An accomplishment, big or small",
+	"Something beautiful you noticed",
+	"A pleasant surprise",
+	"A good conversation you had",
+	"Something you learned today",
+	"A challenge you overcame",
+	"Someone you helped",
+	"A compliment you received",
+	"Something that went better than expected",
+	"A small victory",
+	"Something that made you smile",
+	"A moment of connection",
+	"Something you enjoyed",
+	"A reason to feel proud",
 ];
+
+// Shuffle array function to randomize prompts each time
+const shuffleArray = <T,>(array: T[]): T[] => {
+	const shuffled = [...array];
+	for (let i = shuffled.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+	}
+	return shuffled;
+};
 
 export default function GoodTimes({ navigation }: GoodTimesProps) {
 	const [entries, setEntries] = useState<Entry[]>([
@@ -29,6 +51,8 @@ export default function GoodTimes({ navigation }: GoodTimesProps) {
 	const scrollViewRef = useRef<ScrollView>(null);
 	const [focusId, setFocusId] = useState<number | null>(null);
 	const [showGradient, setShowGradient] = useState(false);
+	// Shuffle prompts once on mount
+	const [shuffledPrompts] = useState(() => shuffleArray(PLACEHOLDER_PROMPTS));
 
 	const handleTextChange = (id: number, text: string) => {
 		setEntries((prevEntries) =>
@@ -112,7 +136,7 @@ export default function GoodTimes({ navigation }: GoodTimesProps) {
 						keyboardShouldPersistTaps="handled"
 					>
 						<Text style={styles.questionText}>
-							What are some things that made you happy today?
+							Positive moments from today
 						</Text>
 
 						{entries.map((entry, index) => (
@@ -132,7 +156,7 @@ export default function GoodTimes({ navigation }: GoodTimesProps) {
 								onSubmitEditing={() => handleSubmitEditing(entry.id)}
 								returnKeyType="done"
 								blurOnSubmit={false}
-								placeholder={PLACEHOLDERS[index % PLACEHOLDERS.length]}
+								placeholder={shuffledPrompts[index % shuffledPrompts.length]}
 								placeholderTextColor="rgba(255, 255, 255, 0.3)"
 								multiline={false}
 							/>

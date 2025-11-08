@@ -6,6 +6,7 @@ import ScreenFrame from "../../components/ScreenFrame";
 import { ThreeLineStack } from "../../components/mantra/ThreeLineStack";
 import { useMantraAudio } from "../../components/mantra/useMantraAudio";
 import PanelPlayerControls from "../../components/panels/PanelPlayerControls";
+import PanelAdjustAudio from "../../components/panels/PanelAdjustAudio";
 import { ProgressTabs } from "../../components/ProgressTabs";
 import { useAppSelector } from "../../store";
 
@@ -18,8 +19,12 @@ export default function Mantra({ navigation }: MantraProps) {
 	const [showIntro, setShowIntro] = useState(true);
 	const [showControls, setShowControls] = useState(false);
 	const [showCompletion, setShowCompletion] = useState(false);
+	const [showAdjustAudioPanel, setShowAdjustAudioPanel] = useState(false);
+	const [sessionLoopCount, setSessionLoopCount] = useState(0); // Track loops in current session
 	const introOpacity = useRef(new Animated.Value(0)).current;
 	const prevIsFocusedRef = useRef(isFocused);
+	const wasPlayingBeforePanelRef = useRef(false);
+	const prevLoopCountRef = useRef(0); // Track previous loop count to detect increments
 
 	// Redux state
 	const loopCount = useAppSelector((state) => state.mantra.loopCount);
@@ -42,19 +47,57 @@ export default function Mantra({ navigation }: MantraProps) {
 	const sessionStartTime = useRef<number | null>(null);
 	const sessionTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-	// Reset state when screen becomes focused after completion
+	// Pause mantra when audio panel opens, resume when it closes
+	useEffect(() => {
+		if (showAdjustAudioPanel) {
+			// Panel opening - save current playing state and pause
+			wasPlayingBeforePanelRef.current = isPlaying;
+			if (isPlaying) {
+				pause();
+			}
+		} else {
+			// Panel closing - restore previous playing state
+			if (wasPlayingBeforePanelRef.current) {
+				play();
+			}
+		}
+	}, [showAdjustAudioPanel, isPlaying, pause, play]);
+
+	// Track loop count changes and update session count
+	useEffect(() => {
+		if (loopCount > prevLoopCountRef.current) {
+			// Loop count increased, increment session count
+			setSessionLoopCount((prev) => prev + 1);
+		}
+		prevLoopCountRef.current = loopCount;
+	}, [loopCount]);
+
+	// Handle screen focus/blur: pause when leaving, reset if completed
 	useEffect(() => {
 		const prevIsFocused = prevIsFocusedRef.current;
 		prevIsFocusedRef.current = isFocused;
 
-		// If screen just became focused and session was completed, reset everything
-		if (!prevIsFocused && isFocused && showCompletion) {
-			setShowCompletion(false);
-			setShowIntro(true);
-			setIsActive(false);
-			introOpacity.setValue(0);
+		// Screen just gained focus
+		if (!prevIsFocused && isFocused) {
+			// If session was completed, reset everything
+			if (showCompletion) {
+				setShowCompletion(false);
+				setShowIntro(true);
+				setIsActive(false);
+				setSessionLoopCount(0);
+				introOpacity.setValue(0);
+			}
+			// Otherwise, audio state is preserved by the audio hook
 		}
-	}, [isFocused, showCompletion]);
+
+		// Screen just lost focus (user navigated away)
+		if (prevIsFocused && !isFocused) {
+			// If session is in progress (not completed), pause audio
+			if (isActive && !showCompletion && isPlaying) {
+				pause();
+			}
+		}
+	}, [isFocused, showCompletion, isActive, isPlaying, pause]);
 
 	// Fade in intro text and start mantra after delay
 	useEffect(() => {
@@ -78,6 +121,7 @@ export default function Mantra({ navigation }: MantraProps) {
 				setShowIntro(false);
 			});
 			setIsActive(true);
+			setSessionLoopCount(0); // Reset session loop count when starting
 		}, INTRO_DURATION);
 
 		return () => clearTimeout(timer);
@@ -204,12 +248,15 @@ export default function Mantra({ navigation }: MantraProps) {
 				)}
 
 				{/* Loop progress tabs */}
-				{showControls && <ProgressTabs total={10} current={loopCount} />}
+				{showControls && <ProgressTabs total={10} current={sessionLoopCount} />}
 
 				{/* Control buttons */}
 				{showControls && (
 					<PanelPlayerControls
 						isPaused={!isPlaying}
+						onCustomizeAudio={() => {
+							setShowAdjustAudioPanel(true);
+						}}
 						onTogglePlayPause={togglePause}
 						onOpenControls={() => {
 							// Future: open settings panel
@@ -250,6 +297,14 @@ export default function Mantra({ navigation }: MantraProps) {
 					</View>
 				)}
 			</Pressable>
+
+			{/* Adjust Audio Panel */}
+			<PanelAdjustAudio
+				visible={showAdjustAudioPanel}
+				onClose={() => {
+					setShowAdjustAudioPanel(false);
+				}}
+			/>
 		</ScreenFrame>
 	);
 }

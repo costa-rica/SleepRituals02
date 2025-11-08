@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Animated, Dimensions, Easing } from 'react-native';
 import Svg, { Defs, RadialGradient, Stop, Circle as SvgCircle } from 'react-native-svg';
 
 // Breathing phase enum
@@ -157,6 +157,7 @@ const SimpleBreathing: React.FC<SimpleBreathingProps> = ({
       Animated.timing(breathingScale, {
         toValue: targetScale,
         duration: duration,
+        easing: Easing.bezier(0.37, 0, 0.8, 1), // More pronounced ease-in-out with slower, gentler ending
         useNativeDriver: true,
       }).start();
     }, dotAnimationDelay);
@@ -192,6 +193,7 @@ const SimpleBreathing: React.FC<SimpleBreathingProps> = ({
     Animated.timing(breathingScale, {
       toValue: 1,
       duration: breatheInDuration,
+      easing: Easing.bezier(0.37, 0, 0.8, 1), // More pronounced ease-in-out with slower, gentler ending
       useNativeDriver: true,
     }).start();
   }, [isActive]);
