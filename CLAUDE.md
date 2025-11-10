@@ -122,6 +122,12 @@ dispatch(
 **Constants** should be stored in the `src/constants/` directory:
 
 - `src/constants/breathingExercises.ts` - Breathing exercise options
+- `src/constants/designTokens.ts` - **Design system tokens** for consistent styling:
+  - **Colors**: `backgroundDark`, `cardBackground`, `cardBackgroundLifted`, `cardBorder`, `accentPurple`, etc.
+  - **Spacing**: `cardPadding`, `cardMarginBottom`, `cardBorderRadius`, `panelPaddingTop`, etc.
+  - **Typography**: Font sizes and weights for cards, buttons, body text
+  - All customize cards and modals use these tokens for consistent visual treatment
+  - Border width standard: 1px across all cards (selected and unselected states)
 
 ### Audio Assets
 
@@ -135,7 +141,20 @@ dispatch(
   - `exhale` step → `exhale.mp3`
   - `afterExhale` step → `hold.mp3`
 - Audio plays once at the start of each breathing phase, synchronized with step changes
-- All audio files generated from ElevenLabs (see `docs/VOICE_RECORDINGS.md` for voice parameters)
+- **High-quality narrators**: Sira and Frederick use Eleven Labs recordings
+- **Temporarily hidden**: Carla, Michael, Walter (commented out in `ModalSelectNarrator.tsx` until audio is improved)
+- All audio files should be generated from ElevenLabs (see `docs/VOICE_RECORDINGS.md` for voice parameters)
+
+**Background music** (`src/assets/audio/music/`):
+
+- Music tracks for ambient background during rituals
+- Current track: `ocean-waves.mp3` (1:27, 2MB, 192kbps stereo)
+- Managed by `MusicManager` class with crossfade looping (see Audio Management section below)
+- Files should be:
+  - Format: MP3
+  - Bitrate: 128-192kbps
+  - Length: 1-5 minutes (optimized for looping)
+  - Quality: High-quality, seamlessly loopable
 
 ### Panels and Customize Cards
 
@@ -150,11 +169,30 @@ The panels directory contains reusable slide-up layouts and control components t
 
 **Customize Cards architecture** (`src/components/customize-cards/`):
 
-Customize cards are standardized, reusable UI components for user preference selection. These cards provide consistent interfaces for adjusting app settings:
+Customize cards are standardized, reusable UI components for user preference selection. All cards use the design token system for consistent styling:
 
-- **CustomizeCardSelector** (`CustomizeCardSelector.tsx`) - Selection interface for choosing between predefined options (e.g., breathing exercises)
-- **CustomizeCardSlider** (planned) - Slider control for adjusting voice and music settings
-- **CustomizeCardPlusMinus** (planned) - Plus/minus buttons for incrementing/decrementing values (e.g., duration)
+- **CustomizeCardBase** (`CustomizeCardBase.tsx`) - Base wrapper component providing consistent visual treatment
+  - Accepts `spacing` prop: `'compact'` (8px margin for panels) or `'default'` (24px margin)
+  - Provides title styling, border, background, padding via design tokens
+- **CustomizeCardSelector** (`CustomizeCardSelector.tsx`) - Selection interface with chevron icon
+  - Used for: Breathing exercise type selection
+  - Shows current selection + chevron indicator
+- **CustomizeCardSelectorSlider** (`CustomizeCardSelectorSlider.tsx`) - Selection with volume slider
+  - Used for: Voice and Music selection with volume control
+  - Supports `disabled` prop to gray out slider (e.g., when "No Voice" or "No Music" selected)
+  - Slider position persists even when disabled
+- **CustomizeCardPlusMinus** (`CustomizeCardPlusMinus.tsx`) - Plus/minus buttons for numeric values
+  - Used for: Duration adjustment (cycles)
+  - 40px buttons with -4px vertical margin for larger touch targets
+  - Maintains consistent card height with selector cards
+
+**Selectable Cards** (`src/components/cards/`):
+
+- **SelectableCard** (`SelectableCard.tsx`) - Reusable component for selection modals
+  - Fixed height support via `fixedHeight` prop
+  - Selected state: Changes border color to `accentPurple`, background to `cardBackgroundLifted`
+  - Consistent 1px border weight across all states
+  - Used in: ModalSelectBreathingExercise, ModalSelectNarrator, ModalSelectMusic
 
 **Integration with Redux state**:
 
@@ -177,6 +215,94 @@ User selections made through customize cards persist in Redux reducers:
 3. State updates persist via redux-persist
 4. UI reflects updated preferences from Redux store
 
+### Audio Management
+
+**Background Music System** (`src/utils/musicManager.ts` + `src/hooks/useBackgroundMusic.ts`):
+
+The app features a sophisticated background music system with seamless crossfade looping:
+
+**MusicManager Class** - Core music playback engine:
+- **Crossfade looping**: Automatically loops tracks with 6-second equal power crossfade
+  - Uses dual Audio.Sound instances for overlap
+  - Crossfade starts at `trackDuration - 6000ms`
+  - Equal power curves: `cos(progress * π/2)` for fade out, `sin(progress * π/2)` for fade in
+  - Dynamic duration detection works with any track length
+- **Ritual transitions**: 2-second fade in on start, 4-second fade out on end
+- **Pause/Resume**: 1.5-second fade out on pause, 2-second fade in on resume
+- **Position preservation**: Pause keeps track position, resume continues from same spot
+- **Volume control**: Real-time volume adjustment without interrupting playback
+- **Cleanup**: Proper async cleanup with cancellation checks to prevent overlapping instances
+
+**useBackgroundMusic Hook** - React integration:
+- Automatically starts music when ritual becomes active
+- Respects "No Music" selection
+- Syncs with pause/resume state
+- Handles focus/blur (fades out when navigating away)
+- Volume slider integration via Redux
+
+**Audio Mixing Configuration**:
+
+Critical for multiple audio sources (narrator + music) to play simultaneously:
+
+```typescript
+await Audio.setAudioModeAsync({
+  playsInSilentModeIOS: true,
+  staysActiveInBackground: true,
+  shouldDuckAndroid: false,
+  interruptionModeIOS: 1, // INTERRUPTION_MODE_IOS_MIX_WITH_OTHERS
+  interruptionModeAndroid: 1, // INTERRUPTION_MODE_ANDROID_DO_NOT_MIX
+});
+```
+
+This must be set in:
+- `musicManager.ts` (background music)
+- `BreathlyExercise.tsx` (breathing narrator)
+- `useMantraAudio.ts` (mantra narrator)
+
+**Audio Cleanup Pattern**:
+
+To prevent duplicate audio tracks when settings change:
+
+```typescript
+useEffect(() => {
+  let isCancelled = false;
+
+  const playAudio = async () => {
+    // Unload previous
+    if (soundRef.current) {
+      await soundRef.current.unloadAsync();
+    }
+    if (isCancelled) return; // Check after async operation
+    
+    // Create and play new
+    const { sound } = await Audio.Sound.createAsync(source);
+    if (isCancelled) {
+      await sound.unloadAsync(); // Clean up if cancelled
+      return;
+    }
+    soundRef.current = sound;
+    await sound.playAsync();
+  };
+
+  playAudio();
+
+  return () => {
+    isCancelled = true;
+    if (soundRef.current) {
+      soundRef.current.stopAsync().then(() => {
+        soundRef.current?.unloadAsync();
+      });
+    }
+  };
+}, [dependencies]);
+```
+
+Key points:
+- Use `isCancelled` flag to track cleanup
+- Check flag after each async operation
+- Call `stopAsync()` before `unloadAsync()`
+- Handle errors gracefully with `.catch()`
+
 ### Design Reference
 
 Figma design screenshots are in `docs/Figma/`:
@@ -196,6 +322,68 @@ Refer to these for UI implementation details and variations.
 - Splash: `./src/assets/expo-assets/splash-icon.png`
 - Adaptive icon: `./src/assets/expo-assets/adaptive-icon.png`
 
+### Ritual Lifecycle Management
+
+**Pause-on-Blur Behavior**:
+
+Both Breathing and Mantra rituals implement automatic pause when navigating away:
+
+- **When user switches tabs mid-ritual**:
+  - Ritual automatically pauses (animation, audio, timer)
+  - Progress is preserved (cycle count, position)
+  - Music fades out (4 seconds)
+  
+- **When user returns to paused ritual**:
+  - Remains paused where they left off
+  - User presses play to continue
+  - Music fades in (2 seconds)
+
+- **When user returns to completed ritual**:
+  - Everything resets to beginning
+  - Intro plays again
+  - Fresh start
+
+**Implementation Pattern**:
+
+```typescript
+useEffect(() => {
+  const prevIsFocused = prevIsFocusedRef.current;
+  prevIsFocusedRef.current = isFocused;
+
+  // Screen just lost focus
+  if (prevIsFocused && !isFocused) {
+    if (isActive && !hasCompleted) {
+      setIsPaused(true); // Pause ritual
+    }
+  }
+  
+  // Screen gained focus
+  if (!prevIsFocused && isFocused) {
+    if (hasCompleted) {
+      // Reset everything for fresh start
+    }
+    // Otherwise preserve paused state
+  }
+}, [isFocused, hasCompleted, isActive]);
+```
+
+**Panel Pause Behavior**:
+
+When Adjust Audio panel opens (via customize audio button):
+- Everything pauses: animation, narrator, music, timer
+- This ensures audio/visual stay in sync
+- When panel closes, everything resumes from where it paused
+- Implemented via `wasPausedBeforePanelRef` to preserve user's pause state
+
+### Good Times Journal
+
+**Prompt Rotation** (`src/app/welcome/GoodTimes.tsx`):
+
+- 20 positive, action-oriented placeholder prompts (e.g., "Something that made you laugh")
+- Prompts are shuffled once on component mount using `shuffleArray` utility
+- Rotation persists during session but reshuffles on app restart
+- Title: "Positive moments from today" (warm, less task-oriented)
+
 ## Important Notes
 
 - **Type safety**: TypeScript strict mode is enabled. Pre-start hook runs `tsc --noEmit` to catch type errors before runtime
@@ -203,6 +391,9 @@ Refer to these for UI implementation details and variations.
 - **Asset paths**: When adding assets, place them in `src/assets/expo-assets` and reference them correctly in `app.json`
 - **Redux usage**: Always use typed hooks (`useAppSelector`, `useAppDispatch`) from `src/store` for type safety
 - **State persistence**: When modifying Redux state shape, increment the version in `src/store/store.ts` and add a migration if needed
+- **Audio mixing**: Always configure `interruptionModeIOS: 1` when creating Audio.Sound instances to allow narrator + music mixing
+- **Async cleanup**: Use `isCancelled` pattern for all audio cleanup to prevent duplicate tracks
+- **Music crossfade**: Don't modify crossfade logic without understanding equal power curves and dual-instance management
 
 ## Implementation Difficulty Index
 

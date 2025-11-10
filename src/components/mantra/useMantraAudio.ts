@@ -69,11 +69,13 @@ export function useMantraAudio(): UseMantraAudioReturn {
       setIsLoading(true);
       setError(null);
 
-      // Configure audio mode
+      // Configure audio mode to mix with background music
       await Audio.setAudioModeAsync({
         playsInSilentModeIOS: true,
         staysActiveInBackground: true,
         shouldDuckAndroid: false,
+        interruptionModeIOS: 1, // INTERRUPTION_MODE_IOS_MIX_WITH_OTHERS
+        interruptionModeAndroid: 1, // INTERRUPTION_MODE_ANDROID_DO_NOT_MIX
       });
 
       const audioFileName = `sleep_rituals_${theme}_${voice}`;

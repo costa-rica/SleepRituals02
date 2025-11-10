@@ -8,6 +8,7 @@ import { useMantraAudio } from "../../components/mantra/useMantraAudio";
 import PanelPlayerControls from "../../components/panels/PanelPlayerControls";
 import PanelAdjustAudio from "../../components/panels/PanelAdjustAudio";
 import { ProgressTabs } from "../../components/ProgressTabs";
+import { useBackgroundMusic } from "../../hooks/useBackgroundMusic";
 import { useAppSelector } from "../../store";
 
 const INTRO_DURATION = 4000; // 4 seconds
@@ -46,6 +47,13 @@ export default function Mantra({ navigation }: MantraProps) {
 	// Session timer to track when to show completion
 	const sessionStartTime = useRef<number | null>(null);
 	const sessionTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+	// Background music with crossfade looping
+	useBackgroundMusic({
+		isRitualActive: isActive && !showIntro && !showCompletion,
+		isFocused,
+		isPaused: !isPlaying,
+	});
 
 	// Pause mantra when audio panel opens, resume when it closes
 	useEffect(() => {

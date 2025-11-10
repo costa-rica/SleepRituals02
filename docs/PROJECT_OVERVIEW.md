@@ -38,7 +38,9 @@ src/
 │   ├── breathing/           # Breathing-specific components
 │   ├── breathly/            # Breathing animation logic
 │   └── panels/              # Slide-up panel components
-├── constants/               # Constants for breathing exercises and other menu options
+├── constants/               # Constants (breathing exercises, design tokens)
+├── hooks/                   # Custom React hooks (useBackgroundMusic)
+├── utils/                   # Utility functions (breathingAudio.ts, musicManager.ts)
 ├── store/
 │   ├── features/
 │   │   ├── sound/
@@ -139,6 +141,71 @@ Design visuals can be found in `/docs/Figma/`:
 
 Each represents a different screen state.  
 These serve as references for layout proportions, font styling, and color gradients.
+
+---
+
+## Audio & Music System
+
+### Background Music
+
+The app features an advanced background music system with seamless crossfade looping:
+
+**Architecture:**
+- **MusicManager class** (`src/utils/musicManager.ts`) - Core playback engine
+- **useBackgroundMusic hook** (`src/hooks/useBackgroundMusic.ts`) - React integration
+- **Music files** (`src/assets/audio/music/`) - Optimized MP3 tracks (1-5 min, 128-192kbps)
+
+**Key Features:**
+- **Crossfade looping**: 6-second equal power crossfade for seamless infinite playback
+- **Dynamic duration**: Works with any track length automatically
+- **Ritual transitions**: Smooth fade in (2s) on start, fade out (4s) on end
+- **Pause/Resume**: 1.5s fade out on pause, 2s fade in on resume with position preservation
+- **Volume control**: Real-time adjustment without interrupting playback
+
+**Equal Power Crossfade:**
+```
+Track A fadeout: cos(progress * π/2) 
+Track B fadein:  sin(progress * π/2)
+Result: Constant perceived volume throughout crossfade
+```
+
+### Voice Narration
+
+**Breathing narrators** play synchronized voice cues ("Breathe in", "Hold", "Breathe out"):
+- High-quality: Sira, Frederick (Eleven Labs)
+- Temporarily hidden: Carla, Michael, Walter (awaiting audio replacement)
+- Audio plays once per breathing phase step
+- Volume controlled independently from music
+
+**Audio Mixing:**
+
+Critical iOS/Android configuration to allow narrator + music simultaneously:
+
+```typescript
+await Audio.setAudioModeAsync({
+  playsInSilentModeIOS: true,
+  staysActiveInBackground: true,
+  shouldDuckAndroid: false,
+  interruptionModeIOS: 1, // MIX_WITH_OTHERS
+  interruptionModeAndroid: 1,
+});
+```
+
+Must be set in all audio playback locations:
+- `musicManager.ts`
+- `BreathlyExercise.tsx`  
+- `useMantraAudio.ts`
+
+### Audio Cleanup Best Practices
+
+To prevent duplicate audio tracks when settings change:
+
+1. Use `isCancelled` flag pattern
+2. Check flag after each async operation
+3. Call `stopAsync()` before `unloadAsync()`
+4. Wrap in try/catch with `.catch()` for graceful error handling
+
+See `BreathlyExercise.tsx` for reference implementation.
 
 ---
 

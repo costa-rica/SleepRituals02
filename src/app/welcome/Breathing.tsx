@@ -9,6 +9,7 @@ import PanelAdjustAudio from "../../components/panels/PanelAdjustAudio";
 import PanelPlayerControls from "../../components/panels/PanelPlayerControls";
 import ModalSelectBreathingExercise from "../../components/modals/ModalSelectBreathingExercise";
 import { ProgressTabs } from "../../components/ProgressTabs";
+import { useBackgroundMusic } from "../../hooks/useBackgroundMusic";
 import {
 	useAppSelector,
 	useAppDispatch,
@@ -41,6 +42,13 @@ export default function Breathing({ navigation }: BreathingProps) {
 	const breatheOut = useAppSelector((state) => state.breathing.breatheOut);
 	const holdOut = useAppSelector((state) => state.breathing.holdOut);
 	const totalCycles = useAppSelector((state) => state.breathing.cycles);
+
+	// Background music with crossfade looping
+	useBackgroundMusic({
+		isRitualActive: isActive && !showIntro && !hasCompleted,
+		isFocused,
+		isPaused,
+	});
 
 	// Pause breathing when panel opens, resume when it closes
 	useEffect(() => {

@@ -91,6 +91,15 @@ export const BreathlyExercise: FC<Props> = ({
       }
 
       try {
+        // Configure audio to mix with background music
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: true,
+          shouldDuckAndroid: false,
+          interruptionModeIOS: 1, // INTERRUPTION_MODE_IOS_MIX_WITH_OTHERS
+          interruptionModeAndroid: 1, // INTERRUPTION_MODE_ANDROID_DO_NOT_MIX
+        });
+
         // Unload any previous sound
         if (soundRef.current) {
           await soundRef.current.unloadAsync();
