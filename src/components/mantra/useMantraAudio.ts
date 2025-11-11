@@ -1,8 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Audio, AVPlaybackStatus } from 'expo-av';
+import { Animated, Easing } from 'react-native';
+import { Audio } from 'expo-av';
 import { useAppSelector, useAppDispatch, setCurrentLineIndex, incrementLoopCount } from '../../store';
 import { MantraData, MantraLine, ActiveLineInfo } from '../../types/mantra';
-import { timeStringToMs } from '../../utils/time';
+
+const GAP_BETWEEN_LINES_MS = 1500; // 1.5 seconds between mantra lines
+const TEXT_FADE_IN_MS = 500; // Text fades in before audio
+const TEXT_FADE_OUT_MS = 500; // Text fades out after audio
+const TEXT_LEAD_IN_MS = 300; // Text appears 300ms before audio starts
+const TEXT_LINGER_MS = 800; // Text lingers 800ms after audio ends
 
 interface UseMantraAudioReturn {
   isLoading: boolean;
@@ -10,6 +16,7 @@ interface UseMantraAudioReturn {
   isPlaying: boolean;
   activeLine: ActiveLineInfo | null;
   mantraData: MantraData | null;
+  lineOpacity: Animated.Value;
   play: () => Promise<void>;
   pause: () => Promise<void>;
   seekToLine: (lineIndex: number) => Promise<void>;
@@ -24,7 +31,6 @@ export function useMantraAudio(): UseMantraAudioReturn {
   const voice = useAppSelector((state) => state.mantra.voice);
   const currentLineIndex = useAppSelector((state) => state.mantra.currentLineIndex);
   const narratorVolume = useAppSelector((state) => state.sound.narratorVoiceVolume);
-  const musicVolume = useAppSelector((state) => state.sound.musicVolume);
 
   // Local state
   const [isLoading, setIsLoading] = useState(true);
@@ -33,24 +39,26 @@ export function useMantraAudio(): UseMantraAudioReturn {
   const [activeLine, setActiveLine] = useState<ActiveLineInfo | null>(null);
   const [mantraData, setMantraData] = useState<MantraData | null>(null);
 
-  // Refs for audio instances
-  const voiceSound = useRef<Audio.Sound | null>(null);
-  const musicSound = useRef<Audio.Sound | null>(null);
-  const positionUpdateInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Refs for audio playback
+  const currentSound = useRef<Audio.Sound | null>(null);
+  const playbackLoopRef = useRef<boolean>(false);
+  const currentLineIndexRef = useRef<number>(0);
+  const pausedAtLineRef = useRef<number>(0); // Track which line we paused at
+  
+  // Animated value for text opacity
+  const lineOpacity = useRef(new Animated.Value(0)).current;
 
   // Load mantra data from JSON
   const loadMantraData = useCallback(() => {
-    const jsonFileName = `sleep_rituals_${theme}_${voice}`;
     try {
-      // Use require for static bundling (Metro doesn't support dynamic imports)
-      // For now, only support calm/sira - can expand later
+      // Use require for static bundling
       let data: MantraData | null = null;
 
-      if (jsonFileName === 'sleep_rituals_calm_sira') {
-        data = require('../../assets/mantras/sleep_rituals_calm_sira.json');
+      if (theme === 'calm') {
+        data = require('../../assets/mantras/calm.json');
       } else {
-        console.error(`Mantra ${jsonFileName} not found`);
-        setError(`Mantra theme "${theme}" with voice "${voice}" is not available yet.`);
+        console.error(`Mantra theme ${theme} not found`);
+        setError(`Mantra theme "${theme}" is not available yet.`);
         return null;
       }
 
@@ -58,13 +66,37 @@ export function useMantraAudio(): UseMantraAudioReturn {
       return data;
     } catch (err) {
       console.error('Failed to load mantra JSON:', err);
-      setError(`Failed to load mantra data: ${jsonFileName}.json`);
+      setError(`Failed to load mantra data for theme: ${theme}`);
       return null;
     }
+  }, [theme]);
+
+  // Get audio source for a specific line
+  const getLineAudioSource = useCallback((lineIndex: number): any => {
+    const voiceLower = voice.toLowerCase();
+    const lineNum = (lineIndex + 1).toString().padStart(2, '0');
+
+    // Map theme/voice combinations to their audio files
+    if (theme === 'calm' && voiceLower === 'sira') {
+      const audioMap: Record<string, any> = {
+        'line-01': require('../../assets/mantras/calm/sira/line-01.mp3'),
+        'line-02': require('../../assets/mantras/calm/sira/line-02.mp3'),
+        'line-03': require('../../assets/mantras/calm/sira/line-03.mp3'),
+        'line-04': require('../../assets/mantras/calm/sira/line-04.mp3'),
+        'line-05': require('../../assets/mantras/calm/sira/line-05.mp3'),
+        'line-06': require('../../assets/mantras/calm/sira/line-06.mp3'),
+        'line-07': require('../../assets/mantras/calm/sira/line-07.mp3'),
+        'line-08': require('../../assets/mantras/calm/sira/line-08.mp3'),
+      };
+      return audioMap[`line-${lineNum}`] || null;
+    }
+
+    // Add more theme/voice combinations here as you create them
+    return null;
   }, [theme, voice]);
 
-  // Load audio files
-  const loadAudio = useCallback(async () => {
+  // Load mantra data
+  const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -78,181 +110,244 @@ export function useMantraAudio(): UseMantraAudioReturn {
         interruptionModeAndroid: 1, // INTERRUPTION_MODE_ANDROID_DO_NOT_MIX
       });
 
-      const audioFileName = `sleep_rituals_${theme}_${voice}`;
-
-      // Use require for static bundling
-      let audioSource;
-      if (audioFileName === 'sleep_rituals_calm_sira') {
-        audioSource = require('../../assets/audio/sleep_rituals_calm_sira.aif');
-      } else {
-        throw new Error(`Audio file for ${audioFileName} not found`);
+      // Load mantra JSON data
+      const data = loadMantraData();
+      if (!data) {
+        setIsLoading(false);
+        return;
       }
-
-      // Load voice audio
-      const { sound: voiceAudio } = await Audio.Sound.createAsync(
-        audioSource,
-        {
-          shouldPlay: false,
-          volume: narratorVolume / 100,
-          isLooping: true, // Loop the mantra audio
-        }
-      );
-      voiceSound.current = voiceAudio;
-
-      // Set up playback status update callback
-      voiceAudio.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.isPlaying) {
-          updateActiveLine(status.positionMillis);
-        }
-
-        // Handle loop completion
-        if (status.isLoaded && status.didJustFinish && status.isLooping) {
-          dispatch(incrementLoopCount());
-        }
-      });
-
-      // Load mantra data
-      loadMantraData();
 
       setIsLoading(false);
     } catch (err) {
-      console.error('Failed to load audio:', err);
-      setError('Failed to load audio files');
+      console.error('Failed to load mantra data:', err);
+      setError('Failed to load mantra data');
       setIsLoading(false);
     }
-  }, [theme, voice, narratorVolume, dispatch, loadMantraData]);
+  }, [loadMantraData]);
 
-  // Update active line based on current position
-  const updateActiveLine = useCallback((positionMs: number) => {
-    if (!mantraData) return;
+  // Play a single line with audio and text fade timing
+  const playLine = useCallback(async (lineIndex: number): Promise<void> => {
+    if (!mantraData || playbackLoopRef.current === false) return;
 
-    const currentLine = mantraData.lines.find((line, index) => {
-      const startMs = timeStringToMs(line.start);
-      const endMs = timeStringToMs(line.end);
-      return positionMs >= startMs && positionMs < endMs;
-    });
+    const line = mantraData.lines[lineIndex];
+    if (!line) return;
 
-    if (currentLine) {
-      const lineIndex = mantraData.lines.indexOf(currentLine);
-      if (lineIndex !== currentLineIndex) {
-        dispatch(setCurrentLineIndex(lineIndex));
-      }
-
+    try {
+      // Update active line
+      currentLineIndexRef.current = lineIndex;
+      dispatch(setCurrentLineIndex(lineIndex));
       setActiveLine({
         index: lineIndex,
-        line: currentLine,
-        startMs: timeStringToMs(currentLine.start),
-        endMs: timeStringToMs(currentLine.end),
+        line: line,
       });
-    }
-  }, [mantraData, currentLineIndex, dispatch]);
 
-  // Play audio with fade in
-  const play = useCallback(async () => {
-    try {
-      if (voiceSound.current) {
-        await voiceSound.current.playAsync();
-        setIsPlaying(true);
+      // 1. Fade in text
+      await new Promise<void>((resolve) => {
+        Animated.timing(lineOpacity, {
+          toValue: 1,
+          duration: TEXT_FADE_IN_MS,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+          useNativeDriver: true,
+        }).start(() => resolve());
+      });
 
-        // Start position monitoring
-        positionUpdateInterval.current = setInterval(async () => {
-          const status = await voiceSound.current?.getStatusAsync();
-          if (status?.isLoaded && status.isPlaying) {
-            updateActiveLine(status.positionMillis);
-          }
-        }, 100); // Update every 100ms for smooth sync
+      // 2. Brief pause after text is visible
+      await new Promise(resolve => setTimeout(resolve, TEXT_LEAD_IN_MS));
+
+      if (!playbackLoopRef.current) return;
+
+      // 3. Get audio source and play
+      const audioSource = getLineAudioSource(lineIndex);
+      if (!audioSource) {
+        console.warn(`Audio not found for line ${lineIndex + 1}`);
+        return;
       }
+
+      const { sound } = await Audio.Sound.createAsync(audioSource, {
+        volume: narratorVolume / 100,
+        shouldPlay: true,
+      });
+
+      currentSound.current = sound;
+
+      // 4. Wait for audio to finish playing
+      await new Promise<void>((resolve) => {
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded && status.didJustFinish) {
+            resolve();
+          }
+        });
+      });
+
+      if (!playbackLoopRef.current) return;
+
+      // 5. Brief linger after audio ends
+      await new Promise(resolve => setTimeout(resolve, TEXT_LINGER_MS));
+
+      // 6. Fade out text
+      await new Promise<void>((resolve) => {
+        Animated.timing(lineOpacity, {
+          toValue: 0,
+          duration: TEXT_FADE_OUT_MS,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+          useNativeDriver: true,
+        }).start(() => resolve());
+      });
+
+      // Clean up this line's audio
+      await sound.unloadAsync();
+      currentSound.current = null;
+
     } catch (err) {
-      console.error('Failed to play audio:', err);
-      setError('Failed to play audio');
+      console.error(`Error playing line ${lineIndex + 1}:`, err);
     }
-  }, [updateActiveLine]);
+  }, [mantraData, getLineAudioSource, narratorVolume, dispatch, lineOpacity]);
 
-  // Pause audio with fade out
-  const pause = useCallback(async () => {
-    try {
-      if (voiceSound.current) {
-        await voiceSound.current.pauseAsync();
-        setIsPlaying(false);
+  // Main playback loop - plays all lines sequentially with gaps
+  const startPlaybackLoop = useCallback(async (startFromLine: number = 0) => {
+    if (!mantraData) return;
 
-        // Stop position monitoring
-        if (positionUpdateInterval.current) {
-          clearInterval(positionUpdateInterval.current);
-          positionUpdateInterval.current = null;
+    playbackLoopRef.current = true;
+
+    while (playbackLoopRef.current) {
+      // Play through all lines, starting from specified line
+      for (let i = startFromLine; i < mantraData.lines.length; i++) {
+        if (!playbackLoopRef.current) break;
+
+        // Play the line
+        await playLine(i);
+
+        // Wait for gap between lines (unless it's the last line before loop)
+        if (playbackLoopRef.current && i < mantraData.lines.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, GAP_BETWEEN_LINES_MS));
         }
       }
-    } catch (err) {
-      console.error('Failed to pause audio:', err);
-      setError('Failed to pause audio');
+
+      // Completed full cycle through all lines
+      if (playbackLoopRef.current) {
+        dispatch(incrementLoopCount());
+        // Small gap before restarting from beginning
+        await new Promise(resolve => setTimeout(resolve, GAP_BETWEEN_LINES_MS));
+      }
+      
+      // After first loop, always start from line 0
+      startFromLine = 0;
     }
-  }, []);
+  }, [mantraData, playLine, dispatch]);
+
+  // Start playing
+  const play = useCallback(async () => {
+    if (isPlaying) return;
+
+    setIsPlaying(true);
+    // Resume from wherever we paused
+    startPlaybackLoop(pausedAtLineRef.current);
+  }, [isPlaying, startPlaybackLoop]);
+
+  // Pause playback
+  const pause = useCallback(async () => {
+    playbackLoopRef.current = false;
+    setIsPlaying(false);
+
+    // Save current line for resume
+    pausedAtLineRef.current = currentLineIndexRef.current;
+
+    // Stop current sound if playing
+    if (currentSound.current) {
+      try {
+        await currentSound.current.stopAsync();
+        await currentSound.current.unloadAsync();
+        currentSound.current = null;
+      } catch (err) {
+        console.error('Error stopping sound:', err);
+      }
+    }
+
+    // Fade out text if visible
+    Animated.timing(lineOpacity, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [lineOpacity]);
 
   // Seek to specific line
   const seekToLine = useCallback(async (lineIndex: number) => {
-    try {
-      if (!mantraData || !voiceSound.current) return;
+    if (!mantraData) return;
 
-      const line = mantraData.lines[lineIndex];
-      if (!line) return;
-
-      const startMs = timeStringToMs(line.start);
-      await voiceSound.current.setPositionAsync(startMs);
-      dispatch(setCurrentLineIndex(lineIndex));
-      updateActiveLine(startMs);
-    } catch (err) {
-      console.error('Failed to seek to line:', err);
-      setError('Failed to seek to line');
-    }
-  }, [mantraData, dispatch, updateActiveLine]);
-
-  // Update volumes when Redux state changes
-  useEffect(() => {
-    const updateVolumes = async () => {
+    // Stop current playback
+    playbackLoopRef.current = false;
+    
+    if (currentSound.current) {
       try {
-        if (voiceSound.current) {
-          await voiceSound.current.setVolumeAsync(narratorVolume / 100);
-        }
-        if (musicSound.current) {
-          await musicSound.current.setVolumeAsync(musicVolume / 100);
+        await currentSound.current.stopAsync();
+        await currentSound.current.unloadAsync();
+        currentSound.current = null;
+      } catch (err) {
+        // Ignore cleanup errors
+      }
+    }
+
+    // Update to new line index
+    currentLineIndexRef.current = lineIndex;
+    pausedAtLineRef.current = lineIndex; // Update pause position
+    dispatch(setCurrentLineIndex(lineIndex));
+
+    // Fade out text
+    Animated.timing(lineOpacity, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+
+    // Restart playback from new position if was playing
+    if (isPlaying) {
+      startPlaybackLoop(lineIndex);
+    }
+  }, [mantraData, isPlaying, dispatch, startPlaybackLoop, lineOpacity]);
+
+  // Update volume when narrator volume slider changes
+  useEffect(() => {
+    const updateVolume = async () => {
+      try {
+        if (currentSound.current) {
+          await currentSound.current.setVolumeAsync(narratorVolume / 100);
         }
       } catch (err) {
-        console.error('Failed to update volumes:', err);
+        console.error('Failed to update volume:', err);
       }
     };
 
-    updateVolumes();
-  }, [narratorVolume, musicVolume]);
+    updateVolume();
+  }, [narratorVolume]);
 
   // Cleanup function
   const cleanup = useCallback(async () => {
+    playbackLoopRef.current = false;
+
     try {
-      if (positionUpdateInterval.current) {
-        clearInterval(positionUpdateInterval.current);
-        positionUpdateInterval.current = null;
-      }
-
-      if (voiceSound.current) {
-        await voiceSound.current.unloadAsync();
-        voiceSound.current = null;
-      }
-
-      if (musicSound.current) {
-        await musicSound.current.unloadAsync();
-        musicSound.current = null;
+      if (currentSound.current) {
+        await currentSound.current.stopAsync();
+        await currentSound.current.unloadAsync();
+        currentSound.current = null;
       }
     } catch (err) {
       console.error('Failed to cleanup audio:', err);
     }
   }, []);
 
-  // Load audio on mount and when theme/voice changes
+  // Load data on mount and when theme changes
   useEffect(() => {
-    loadAudio();
+    loadData();
+    
+    // Reset playback position when theme changes (fresh start)
+    currentLineIndexRef.current = 0;
+    pausedAtLineRef.current = 0;
 
     return () => {
       cleanup();
     };
-  }, [theme, voice]); // Only reload when theme or voice changes
+  }, [theme, loadData, cleanup]); // Reload when theme changes (voice handled by getLineAudioSource)
 
   return {
     isLoading,
@@ -260,6 +355,7 @@ export function useMantraAudio(): UseMantraAudioReturn {
     isPlaying,
     activeLine,
     mantraData,
+    lineOpacity,
     play,
     pause,
     seekToLine,

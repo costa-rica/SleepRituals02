@@ -38,6 +38,7 @@ export default function Mantra({ navigation }: MantraProps) {
 		isPlaying,
 		activeLine,
 		mantraData,
+		lineOpacity,
 		play,
 		pause,
 		seekToLine,
@@ -188,32 +189,6 @@ export default function Mantra({ navigation }: MantraProps) {
 		}
 	};
 
-	// Navigate to previous line
-	const handleTapPrevious = () => {
-		if (!mantraData || !activeLine) return;
-		const prevIndex = Math.max(0, activeLine.index - 1);
-		seekToLine(prevIndex);
-	};
-
-	// Navigate to next line
-	const handleTapNext = () => {
-		if (!mantraData || !activeLine) return;
-		const nextIndex = Math.min(mantraData.lines.length - 1, activeLine.index + 1);
-		seekToLine(nextIndex);
-	};
-
-	// Get previous, current, and next lines for ThreeLineStack
-	const getPreviousLine = () => {
-		if (!mantraData || !activeLine || activeLine.index === 0) return null;
-		return mantraData.lines[activeLine.index - 1];
-	};
-
-	const getNextLine = () => {
-		if (!mantraData || !activeLine) return null;
-		if (activeLine.index === mantraData.lines.length - 1) return null;
-		return mantraData.lines[activeLine.index + 1];
-	};
-
 	// Error state
 	if (error) {
 		return (
@@ -242,21 +217,18 @@ export default function Mantra({ navigation }: MantraProps) {
 				style={styles.container}
 				onPress={toggleControls}
 			>
-				{/* Three-line text stack */}
-				{isActive && !showIntro && !showCompletion && activeLine && (
+				{/* Single line text with fade animation */}
+				{isActive && !showIntro && !showCompletion && (
 					<View style={styles.textContainer}>
 						<ThreeLineStack
-							previousLine={getPreviousLine()}
-							currentLine={activeLine.line}
-							nextLine={getNextLine()}
-							onTapPrevious={handleTapPrevious}
-							onTapNext={handleTapNext}
+							currentLine={activeLine?.line || null}
+							lineOpacity={lineOpacity}
 						/>
 					</View>
 				)}
 
 				{/* Loop progress tabs */}
-				{showControls && <ProgressTabs total={10} current={sessionLoopCount} />}
+				{showControls && <ProgressTabs total={8} current={sessionLoopCount} />}
 
 				{/* Control buttons */}
 				{showControls && (
@@ -325,6 +297,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
+		marginTop: -96, // Shift up to center on screen
 	},
 	introContainer: {
 		position: "absolute",

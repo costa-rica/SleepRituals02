@@ -177,6 +177,15 @@ Result: Constant perceived volume throughout crossfade
 - Audio plays once per breathing phase step
 - Volume controlled independently from music
 
+**Mantra narrators** play sequential meditation lines:
+- File-based system: Each line is a separate audio file (`line-01.mp3`, `line-02.mp3`, etc.)
+- Currently: Calm theme with 8 lines, Sira narrator
+- Playback flow: Text fades in → audio plays → text lingers → fades out → 1.5s gap → next line
+- Loops 8 times by default (~8 minutes total)
+- Pause/resume preserves position (resumes from current line, not line 1)
+- Organized: `src/assets/mantras/{theme}/{narrator}/line-XX.mp3`
+- Metadata: `src/assets/mantras/{theme}.json` contains line text and structure
+
 **Audio Mixing:**
 
 Critical iOS/Android configuration to allow narrator + music simultaneously:

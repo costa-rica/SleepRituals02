@@ -3,23 +3,13 @@
  */
 
 export interface MantraLine {
-  start: string; // Format: "HH:MM:SS"
-  end: string;   // Format: "HH:MM:SS"
+  index: number;
   text: string;
-}
-
-export interface MantraAudioMetadata {
-  duration: string;     // Format: "HH:MM:SS"
-  sizeMB: number;
-  channels: string;     // e.g., "Stereo"
-  sampleRateHz: number;
-  bitsPerSample: number;
+  audioFile: string;
 }
 
 export interface MantraData {
-  mantraTheme: string;
-  voice: string;
-  audio: MantraAudioMetadata;
+  theme: string;
   lines: MantraLine[];
 }
 
@@ -27,6 +17,4 @@ export interface MantraData {
 export interface ActiveLineInfo {
   index: number;
   line: MantraLine;
-  startMs: number;
-  endMs: number;
 }

@@ -6,9 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Sleep Rituals is a React Native mobile app designed to prime users for sleep and the next day. The app has three key components:
 
-1. **Journal (Good Times)**: Users respond to "What are some things that made you happy today?" - must enter at least one item before advancing
-2. **Breathing Exercise**: Guided breathing using subtle animations with voice narration. Users can select from five narrators (Carla, Michael, Sira, Walter, Frederick), and audio prompts play synchronized with each breathing phase (inhale, exhale, hold).
-3. **Mantra Meditation**: Plays mantra audio files (.mp4) while user sleeps
+1. **Journal (Good Times)**: Users respond to "Positive moments from today" with 20 rotating placeholder prompts - must enter at least one item before advancing
+2. **Breathing Exercise**: Guided breathing using subtle animations with voice narration. Users can select from high-quality narrators (Sira, Frederick), and audio prompts play synchronized with each breathing phase (inhale, exhale, hold). Background music (Ocean Waves) plays with seamless crossfade looping.
+3. **Mantra Meditation**: Sequential playback of mantra lines with gentle fade animations. Each line fades in before audio, lingers briefly, then fades out with 1.5s gaps between lines. Users complete 8 cycles (loops) through all lines.
 
 Journal entries persist using Redux store (future versions may use a database).
 
@@ -156,6 +156,28 @@ dispatch(
   - Length: 1-5 minutes (optimized for looping)
   - Quality: High-quality, seamlessly loopable
 
+**Mantra narration** (`src/assets/mantras/`):
+
+- Organized by theme, then narrator: `mantras/{theme}/{narrator}/line-XX.mp3`
+- Current implementation: Calm theme with Sira narrator (8 lines)
+- Each theme has a JSON file: `mantras/{theme}.json` with line text and metadata
+- Files are numbered sequentially: `line-01.mp3` through `line-08.mp3` (or however many lines)
+- Playback is sequential with configurable gaps between lines (currently 1.5 seconds)
+- File specs:
+  - Format: MP3
+  - Size: 15-75KB per line (very efficient)
+  - Quality: Eleven Labs generated for consistency
+- JSON structure:
+```json
+{
+  "theme": "calm",
+  "lines": [
+    { "index": 1, "text": "I am safe.", "audioFile": "line-01.mp3" },
+    ...
+  ]
+}
+```
+
 ### Panels and Customize Cards
 
 **Panels architecture** (`src/components/panels/`):
@@ -239,6 +261,34 @@ The app features a sophisticated background music system with seamless crossfade
 - Syncs with pause/resume state
 - Handles focus/blur (fades out when navigating away)
 - Volume slider integration via Redux
+
+**Mantra Narration System** (`src/components/mantra/useMantraAudio.ts`):
+
+Sequential line-by-line playback with coordinated text and audio timing:
+
+- **Playback flow per line:**
+  1. Text fades in (500ms)
+  2. Lead-in pause (300ms) 
+  3. Audio plays for line
+  4. Text lingers (800ms after audio ends)
+  5. Text fades out (500ms)
+  6. Gap before next line (1500ms blank screen)
+  
+- **Loop management:**
+  - Plays all lines in sequence (e.g., 8 lines for Calm theme)
+  - Loops continuously until session ends
+  - Tracks loop count (default: 8 cycles total, ~8 minutes)
+  - Each cycle takes ~1 minute
+  
+- **Pause/Resume:**
+  - Saves current line position when paused
+  - Resumes from beginning of saved line (not from Line 1)
+  - Text fades out gracefully on pause
+  
+- **File loading:**
+  - Dynamic theme-based JSON loading
+  - Static requires for audio files (Metro bundler requirement)
+  - Files organized by theme/narrator for easy scaling
 
 **Audio Mixing Configuration**:
 
