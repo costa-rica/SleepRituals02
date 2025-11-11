@@ -54,7 +54,8 @@ export function useMantraAudio(): UseMantraAudioReturn {
       // Use require for static bundling
       let data: MantraData | null = null;
 
-      if (theme === 'calm') {
+      // Support both 'calm' and 'sleep' for backwards compatibility (they're the same)
+      if (theme === 'calm' || theme === 'sleep') {
         data = require('../../assets/mantras/calm.json');
       } else {
         console.error(`Mantra theme ${theme} not found`);
@@ -77,7 +78,8 @@ export function useMantraAudio(): UseMantraAudioReturn {
     const lineNum = (lineIndex + 1).toString().padStart(2, '0');
 
     // Map theme/voice combinations to their audio files
-    if (theme === 'calm' && voiceLower === 'sira') {
+    // Support both 'calm' and 'sleep' for backwards compatibility
+    if ((theme === 'calm' || theme === 'sleep') && voiceLower === 'sira') {
       const audioMap: Record<string, any> = {
         'line-01': require('../../assets/mantras/calm/sira/line-01.mp3'),
         'line-02': require('../../assets/mantras/calm/sira/line-02.mp3'),
