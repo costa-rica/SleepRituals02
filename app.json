@@ -4,16 +4,22 @@
     "slug": "sleep-rituals",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./src/assets/expo-assets/icon.png",
+    "icon": "./src/assets/icon.png",
     "scheme": "sleeprituals02",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "icon": "./src/assets/icon.png",
+      "supportsTablet": true,
+      "bundleIdentifier": "com.costarica.kybervisionmobile22",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "icon": "./src/assets/icon.png",
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/expo-assets/adaptive-icon.png",
+        "foregroundImage": "./src/assets/icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
